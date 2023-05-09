@@ -176,28 +176,53 @@ DECOD:
         JMP FINAL           ; que empiece por 011
         
   DECOD_1XXX:
-    
-           
+    ADDQ.W #7, D1           ; id = 7
+    BTST.L #14, D0          ; miramos el bit 15º de la instr.
+    BNE DECOD_11XXX         ; si no es 0, saltamos a la instr. 10XXX
+    JMP FINAL               ; como la única instr. con 10 sumamos el id
+                            ; y saltamos directamente al final
         
+      
+  DECOD_11XXX:
+    BTST.L #13, D0          ; miramos el bit 14º 
+    BNE DECOD_111XX         ; si no es 0, saltamos a 111XX
+    
+        ;110XX
+        BTST.L #12, D0      ; miramos el bit 13º
+        BNE DECOD_1101X
+        
+            ;1100X
+            ADDQ.W #1, D1   ; id = 8
+            BTST.L #11, D0  ; miramos el bit 12º 
+            BNE FINAL_AUX   ; si es 1, saltamos al final aux para sumar 1
+            JMP FINAL       ; si es 0, saltamos directamente al final
 
 
-
-
-
-
-
-
-
-
-
-
-
+           DECOD_1101X:
+            ADDQ.W #3, D1   ; id = 10
+            BTST.L #11, D0  ; miramos el bit 12º
+            BNE FINAL_AUX   ; si es 1, saltamos al final aux para sumar 1
+            JMP FINAL       ; si es 0, saltamos directamente al final
+      
+      DECOD_111XX:
+        ADDQ.W #5, D1       ; id = 12
+        BTST.L #12, D0      ; miramos el bit 13º
+        BNE DECOD_11110     ; si es 1, saltamos a 11110
+        
+            ;11100
+            BTST.L #11, D0  ; miramos el bit 12º
+            BNE FINAL_AUX   ; si es 1, sumamos 1 al id
+            JMP FINAL       ; si es 0, saltamos al final
+            
+          DECOD_11110:
+            ADDQ.W #2, D1   ; id = 14
+            JMP FINAL
 
    FINAL_AUX:
-    ADDQ.W #1,D1            ; sumamos 1 al número de instrucción final
+    ADDQ.W #1,D1            ; sumamos 1 al id
     
    FINAL: 
-    MOVE.W D1,10(A7)        ; guardamos el número de instrucción en la pila
+    MOVE.W D1,10(A7)        ; guardamos el id en la pila
     MOVE.W (A7)+,D1         ; sacamos D1 de la pila
     MOVE.W (A7)+,D0         ; sacamos D0 de la pila
     
