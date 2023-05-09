@@ -144,7 +144,7 @@ DECOD:
     
     ;0XXX
     BTST.L #14, D0          ; miramos el bit 15º de la instr.
-    BNE DEOCD_01XX          ; si no es 0, saltamos a para la instr. 01XX
+    BNE DECOD_01XX          ; si no es 0, saltamos a para la instr. 01XX
 
         ;00XX
         BTST.L #13, D0      ; miramos el bit 14º de la instr.
