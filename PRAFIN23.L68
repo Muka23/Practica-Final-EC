@@ -1,6 +1,6 @@
 00001048 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.16.01
-Created On: 09/05/2023 20:22:03
+Created On: 13/05/2023 19:24:54
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      : PRAFIN23
@@ -126,115 +126,116 @@ Created On: 09/05/2023 20:22:03
 000010D8                           122          ;*** SALVO DECOD, que va en la siguiente seccion
 000010D8                           123  
 000010D8                           124              ; ESCRIBID VUESTRO CODIGO AQUI
-000010D8                           125          
-000010D8                           126      ;--- FSUBR: FIN SUBRUTINAS
-000010D8                           127      
+000010D8                           125      
+000010D8                           126          
+000010D8                           127      ;--- FSUBR: FIN SUBRUTINAS
 000010D8                           128      
-000010D8                           129  
-000010D8                           130      ;--- IDECOD: INICIO DECOD
-000010D8                           131          ;*** Tras la etiqueta DECOD, debeis implementar la subrutina de 
-000010D8                           132          ;*** decodificacion, que debera ser de libreria, siguiendo la interfaz
-000010D8                           133          ;*** especificada en el enunciado
-000010D8                           134  DECOD:
-000010D8                           135              ; ESCRIBID VUESTRO CODIGO AQUI
-000010D8                           136              
-000010D8  3F00                     137      MOVE.W D0,-(A7)         ; guardamos D0 en la pila
-000010DA  3F01                     138      MOVE.W D1,-(A7)         ; guardamos D1 en la pila
-000010DC  302F 0008                139      MOVE.W 8(A7),D0         ; la instrucción que hemos guardado la pasamos a D0
-000010E0                           140  
-000010E0  323C 0000                141      MOVE.W #0, D1           ; D1 contiene el id de la instrucción
-000010E4  0800 000F                142      BTST.L #15, D0          ; miramos el bit 16º de la instr.
-000010E8  6600 0050                143      BNE DECOD_1XXX          ; si no es 0, saltamos a para la instr. 1XXX
-000010EC                           144      
-000010EC                           145      ;0XXX
-000010EC  0800 000E                146      BTST.L #14, D0          ; miramos el bit 15º de la instr.
-000010F0  6600 0028                147      BNE DECOD_01XX          ; si no es 0, saltamos a para la instr. 01XX
-000010F4                           148  
-000010F4                           149          ;00XX
-000010F4  0800 000D                150          BTST.L #13, D0      ; miramos el bit 14º de la instr.
-000010F8  6600 0010                151          BNE DECOD_001X      ; si no es 0, saltamos a para la instr. 001X
-000010FC                           152          
-000010FC                           153              ;000X
-000010FC  0800 000C                154              BTST.L #12, D0  ; miramos el bit 13º de la instr.
-00001100  6600 0098                155              BNE FINAL_AUX   ; si no es 0, saltamos a final aux para sumar 1
-00001104  4EF9 0000119C            156              JMP FINAL       ; si es 0, saltamos al final
-0000110A                           157              
-0000110A                           158            DECOD_001X:
-0000110A  5441                     159              ADDQ.W #2, D1   ; sumamos 2 al id de la instr.
-0000110C  0800 000C                160              BTST.L #12, D0  ; miramos el bit 13º de la instr.  
-00001110  6600 0088                161              BNE FINAL_AUX   ; si no es 0, saltamos a final aux para sumar 1
-00001114  4EF9 0000119C            162              JMP FINAL       ; si es 0, saltamos al final
-0000111A                           163           
-0000111A                           164        DECOD_01XX:
-0000111A  5841                     165          ADDQ.W #4, D1       ; sumamos 4 al id de la instr.
-0000111C  0800 000D                166          BTST.L #13, D0      ; miramos el bit 14º de la instr.
-00001120  6600 0010                167          BNE DECOD_0110      ; si no es 0, saltamos a la única otra 
-00001124                           168                              ; posibilidad que es 0110
-00001124                           169             ;010X
-00001124  0800 000C                170             BTST.L #12, D0   ; miramos el bit 13º de la instr.
-00001128  6600 0070                171             BNE FINAL_AUX    ; si no es 0, saltamos a final aux para sumar 1
-0000112C  4EF9 0000119C            172             JMP FINAL        ; si es 0, saltamos directamente al final
-00001132                           173        
-00001132                           174        DECOD_0110:
-00001132  5C41                     175          ADDQ.W #6, D1       ; sumamos 6 directamente porque solo hay 1 instr.
-00001134  4EF9 0000119C            176          JMP FINAL           ; que empiece por 011
-0000113A                           177          
-0000113A                           178    DECOD_1XXX:
-0000113A  5E41                     179      ADDQ.W #7, D1           ; id = 7
-0000113C  0800 000E                180      BTST.L #14, D0          ; miramos el bit 15º de la instr.
-00001140  6600 0008                181      BNE DECOD_11XXX         ; si no es 0, saltamos a la instr. 10XXX
-00001144  4EF9 0000119C            182      JMP FINAL               ; como la única instr. con 10 sumamos el id
-0000114A                           183                              ; y saltamos directamente al final
-0000114A                           184          
-0000114A                           185        
-0000114A                           186    DECOD_11XXX:
-0000114A  0800 000D                187      BTST.L #13, D0          ; miramos el bit 14º 
-0000114E  6600 002A                188      BNE DECOD_111XX         ; si no es 0, saltamos a 111XX
-00001152                           189      
-00001152                           190          ;110XX
-00001152  0800 000C                191          BTST.L #12, D0      ; miramos el bit 13º
-00001156  6600 0012                192          BNE DECOD_1101X
-0000115A                           193          
-0000115A                           194              ;1100X
-0000115A  5241                     195              ADDQ.W #1, D1   ; id = 8
-0000115C  0800 000B                196              BTST.L #11, D0  ; miramos el bit 12º 
-00001160  6600 0038                197              BNE FINAL_AUX   ; si es 1, saltamos al final aux para sumar 1
-00001164  4EF9 0000119C            198              JMP FINAL       ; si es 0, saltamos directamente al final
-0000116A                           199  
+000010D8                           129      
+000010D8                           130  
+000010D8                           131      ;--- IDECOD: INICIO DECOD
+000010D8                           132          ;*** Tras la etiqueta DECOD, debeis implementar la subrutina de 
+000010D8                           133          ;*** decodificacion, que debera ser de libreria, siguiendo la interfaz
+000010D8                           134          ;*** especificada en el enunciado
+000010D8                           135  DECOD:
+000010D8                           136              ; ESCRIBID VUESTRO CODIGO AQUI
+000010D8                           137              
+000010D8  3F00                     138      MOVE.W D0,-(A7)         ; guardamos D0 en la pila
+000010DA  3F01                     139      MOVE.W D1,-(A7)         ; guardamos D1 en la pila
+000010DC  302F 0008                140      MOVE.W 8(A7),D0         ; la instrucción que hemos guardado la pasamos a D0
+000010E0                           141  
+000010E0  323C 0000                142      MOVE.W #0, D1           ; D1 contiene el id de la instrucción
+000010E4  0800 000F                143      BTST.L #15, D0          ; miramos el bit 16º de la instr.
+000010E8  6600 0050                144      BNE DECOD_1XXX          ; si no es 0, saltamos a para la instr. 1XXX
+000010EC                           145      
+000010EC                           146      ;0XXX
+000010EC  0800 000E                147      BTST.L #14, D0          ; miramos el bit 15º de la instr.
+000010F0  6600 0028                148      BNE DECOD_01XX          ; si no es 0, saltamos a para la instr. 01XX
+000010F4                           149  
+000010F4                           150          ;00XX
+000010F4  0800 000D                151          BTST.L #13, D0      ; miramos el bit 14º de la instr.
+000010F8  6600 0010                152          BNE DECOD_001X      ; si no es 0, saltamos a para la instr. 001X
+000010FC                           153          
+000010FC                           154              ;000X
+000010FC  0800 000C                155              BTST.L #12, D0  ; miramos el bit 13º de la instr.
+00001100  6600 0098                156              BNE FINAL_AUX   ; si no es 0, saltamos a final aux para sumar 1
+00001104  4EF9 0000119C            157              JMP FINAL       ; si es 0, saltamos al final
+0000110A                           158              
+0000110A                           159            DECOD_001X:
+0000110A  5441                     160              ADDQ.W #2, D1   ; sumamos 2 al id de la instr.
+0000110C  0800 000C                161              BTST.L #12, D0  ; miramos el bit 13º de la instr.  
+00001110  6600 0088                162              BNE FINAL_AUX   ; si no es 0, saltamos a final aux para sumar 1
+00001114  4EF9 0000119C            163              JMP FINAL       ; si es 0, saltamos al final
+0000111A                           164           
+0000111A                           165        DECOD_01XX:
+0000111A  5841                     166          ADDQ.W #4, D1       ; sumamos 4 al id de la instr.
+0000111C  0800 000D                167          BTST.L #13, D0      ; miramos el bit 14º de la instr.
+00001120  6600 0010                168          BNE DECOD_0110      ; si no es 0, saltamos a la única otra 
+00001124                           169                              ; posibilidad que es 0110
+00001124                           170             ;010X
+00001124  0800 000C                171             BTST.L #12, D0   ; miramos el bit 13º de la instr.
+00001128  6600 0070                172             BNE FINAL_AUX    ; si no es 0, saltamos a final aux para sumar 1
+0000112C  4EF9 0000119C            173             JMP FINAL        ; si es 0, saltamos directamente al final
+00001132                           174        
+00001132                           175        DECOD_0110:
+00001132  5C41                     176          ADDQ.W #6, D1       ; sumamos 6 directamente porque solo hay 1 instr.
+00001134  4EF9 0000119C            177          JMP FINAL           ; que empiece por 011
+0000113A                           178          
+0000113A                           179    DECOD_1XXX:
+0000113A  5E41                     180      ADDQ.W #7, D1           ; id = 7
+0000113C  0800 000E                181      BTST.L #14, D0          ; miramos el bit 15º de la instr.
+00001140  6600 0008                182      BNE DECOD_11XXX         ; si no es 0, saltamos a la instr. 10XXX
+00001144  4EF9 0000119C            183      JMP FINAL               ; como la única instr. con 10 sumamos el id
+0000114A                           184                              ; y saltamos directamente al final
+0000114A                           185          
+0000114A                           186        
+0000114A                           187    DECOD_11XXX:
+0000114A  0800 000D                188      BTST.L #13, D0          ; miramos el bit 14º 
+0000114E  6600 002A                189      BNE DECOD_111XX         ; si no es 0, saltamos a 111XX
+00001152                           190      
+00001152                           191          ;110XX
+00001152  0800 000C                192          BTST.L #12, D0      ; miramos el bit 13º
+00001156  6600 0012                193          BNE DECOD_1101X
+0000115A                           194          
+0000115A                           195              ;1100X
+0000115A  5241                     196              ADDQ.W #1, D1   ; id = 8
+0000115C  0800 000B                197              BTST.L #11, D0  ; miramos el bit 12º 
+00001160  6600 0038                198              BNE FINAL_AUX   ; si es 1, saltamos al final aux para sumar 1
+00001164  4EF9 0000119C            199              JMP FINAL       ; si es 0, saltamos directamente al final
 0000116A                           200  
-0000116A                           201             DECOD_1101X:
-0000116A  5641                     202              ADDQ.W #3, D1   ; id = 10
-0000116C  0800 000B                203              BTST.L #11, D0  ; miramos el bit 12º
-00001170  6600 0028                204              BNE FINAL_AUX   ; si es 1, saltamos al final aux para sumar 1
-00001174  4EF9 0000119C            205              JMP FINAL       ; si es 0, saltamos directamente al final
-0000117A                           206        
-0000117A                           207        DECOD_111XX:
-0000117A  5A41                     208          ADDQ.W #5, D1       ; id = 12
-0000117C  0800 000C                209          BTST.L #12, D0      ; miramos el bit 13º
-00001180  6600 0010                210          BNE DECOD_11110     ; si es 1, saltamos a 11110
-00001184                           211          
-00001184                           212              ;11100
-00001184  0800 000B                213              BTST.L #11, D0  ; miramos el bit 12º
-00001188  6600 0010                214              BNE FINAL_AUX   ; si es 1, sumamos 1 al id
-0000118C  4EF9 0000119C            215              JMP FINAL       ; si es 0, saltamos al final
-00001192                           216              
-00001192                           217            DECOD_11110:
-00001192  5441                     218              ADDQ.W #2, D1   ; id = 14
-00001194  4EF9 0000119C            219              JMP FINAL
-0000119A                           220  
-0000119A                           221     FINAL_AUX:
-0000119A  5241                     222      ADDQ.W #1,D1            ; sumamos 1 al id
-0000119C                           223      
-0000119C                           224     FINAL: 
-0000119C  3F41 000A                225      MOVE.W D1,10(A7)        ; guardamos el id en la pila
-000011A0  321F                     226      MOVE.W (A7)+,D1         ; sacamos D1 de la pila
-000011A2  301F                     227      MOVE.W (A7)+,D0         ; sacamos D0 de la pila
-000011A4                           228      
-000011A4  4E75                     229      RTS
-000011A6                           230  
+0000116A                           201  
+0000116A                           202             DECOD_1101X:
+0000116A  5641                     203              ADDQ.W #3, D1   ; id = 10
+0000116C  0800 000B                204              BTST.L #11, D0  ; miramos el bit 12º
+00001170  6600 0028                205              BNE FINAL_AUX   ; si es 1, saltamos al final aux para sumar 1
+00001174  4EF9 0000119C            206              JMP FINAL       ; si es 0, saltamos directamente al final
+0000117A                           207        
+0000117A                           208        DECOD_111XX:
+0000117A  5A41                     209          ADDQ.W #5, D1       ; id = 12
+0000117C  0800 000C                210          BTST.L #12, D0      ; miramos el bit 13º
+00001180  6600 0010                211          BNE DECOD_11110     ; si es 1, saltamos a 11110
+00001184                           212          
+00001184                           213              ;11100
+00001184  0800 000B                214              BTST.L #11, D0  ; miramos el bit 12º
+00001188  6600 0010                215              BNE FINAL_AUX   ; si es 1, sumamos 1 al id
+0000118C  4EF9 0000119C            216              JMP FINAL       ; si es 0, saltamos al final
+00001192                           217              
+00001192                           218            DECOD_11110:
+00001192  5441                     219              ADDQ.W #2, D1   ; id = 14
+00001194  4EF9 0000119C            220              JMP FINAL
+0000119A                           221  
+0000119A                           222     FINAL_AUX:
+0000119A  5241                     223      ADDQ.W #1,D1            ; sumamos 1 al id
+0000119C                           224      
+0000119C                           225     FINAL: 
+0000119C  3F41 000A                226      MOVE.W D1,10(A7)        ; guardamos el id en la pila
+000011A0  321F                     227      MOVE.W (A7)+,D1         ; sacamos D1 de la pila
+000011A2  301F                     228      MOVE.W (A7)+,D0         ; sacamos D0 de la pila
+000011A4                           229      
+000011A4  4E75                     230      RTS
 000011A6                           231  
-000011A6                           232      ;--- FDECOD: FIN DECOD
-000011A6                           233      END    START
+000011A6                           232  
+000011A6                           233      ;--- FDECOD: FIN DECOD
+000011A6                           234      END    START
 
 No errors detected
 No warnings generated

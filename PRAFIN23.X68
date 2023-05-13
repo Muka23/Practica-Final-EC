@@ -108,6 +108,30 @@ EGON:
 EEXIT:
 ECOPY:
 EADD:
+    MOVE.W EIR, D5          ; movemos la instr. a D5
+    JSR CogerA              ; llamamos a la sub. de usuario para coger el valor
+    MOVE.W A5, A1           ; de A y lo movemos a A1
+    
+    MOVE.W EIR, D5
+    JSR CogerB              ; llamamos a la sub. de usuario para coger el valor
+    MOVE.W A5, A2           ; de B y lo movemos a A2
+    
+    MOVE.W EIR, D5
+    JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
+    MOVE.W A5, A3           ; de C y lo movemos a A3
+    
+    CLR.L D6                ; preparamos D6 para poder poner el resultado
+    ADD.W (A1),D6           ; sumamos el contenido de A1 (A) a D6
+    ADD.W (A2),D6           ; sumamos el contenido de A2 (B) a D6
+    
+    MOVE.W SR,D2            ; guardamos los flags del 68k en D2
+    CLR.W D4                
+    JSR FLAGS               ; actualizamos los eflags
+    
+    MOVE.W D6, (A3)         ; movemos D6 =  Xc <-- [Xa] + [Xb]
+    
+    BRA FETCH
+    
 ESUB:
 EAND:
 ESET:
@@ -122,6 +146,127 @@ ELSH:
         ;*** SALVO DECOD, que va en la siguiente seccion
 
 	        ; ESCRIBID VUESTRO CODIGO AQUI
+	        
+CogerA:
+    LSR.L #8,D5             ; movemos D5 8 posiciones a la derecha
+    AND.W #$0007,D5         ; con una máscara, cogemos el valor de A (aaa)
+    
+    JSR REGISTROS           ; miramos a qué registro se corresponde
+    
+    RTS
+    
+    
+CogerB:
+    LSR.L #4,D5             ; movemos D5 4 posiciones a la derecha
+    AND.W #$0007,D5         ; con una máscara, cogemos el valor de B (bbb)
+    
+    JSR REGISTROS           ; miramos a qué registro se corresponde
+    
+    RTS
+
+
+CogerC:
+    AND.W #$0007,D5         ; con una máscara, cogemos el valor de C (ccc)
+
+    JSR REGISTROS           ; miramos a qué registro se corresponde
+    
+    RTS
+   
+CogerI:
+    AND.W #0001,D5          ; con una máscara, cogemos el valor de I
+    
+    RTS
+    
+CogerJ:
+    LSR.L #2,D5             ; movemos D5 4 posiciones a la derecha
+    AND.W #0001,D5          ; con una máscara, cogemos el valor de J
+    
+    RTS
+    
+CogerM:
+    LSR.L #4,D5             ; movemos D5 4 posiciones a la derecha
+    AND.W #$00FF,D5         ; con una máscara, cogemos el valor de M (mmmmmmmm)
+    
+    RTS
+   
+CogerK:
+    LSR.L #3,D5             ; movemos D5 3 posiciones a la derecha
+    AND.B #$00FF,D5         ; con una máscara, cogemos el valor de K (kkkkkkkk)
+    EXT.W D5                ; hacemos una extensión de signo (byte -> word)
+    
+    RTS
+
+*--------------------------------------
+
+REGISTROS:
+    BTST.L #2,D5            ; miramos el tercer bit del registro
+    BNE REGISTROS_1XX       ; si no es 0, saltamos para mirar el registro 1XX
+    
+   ;0XX
+    BTST.L #1,D5            ; miramos el segundo bit del registro
+    BNE REGISTROS_01X       ; si no es 0, saltamos para mirar el registro 01X
+    
+        ;00X
+         BTST.L #0,D5       ; miramos el primer bit del registro
+         BEQ REGISTRO_T0    ; si es 0, el registro es B0
+         JMP REGISTRO_T1    ; si es 0, el registro es B1
+    
+        REGISTROS_01X:
+         BTST.L #0,D5       ; miramos el primer bit del registro
+         BEQ REGISTRO_X2    ; si es 0, el registro es R2
+         JMP REGISTRO_X3    ; si es 0, el registro es R3
+    
+   REGISTROS_1XX:
+    BTST.L #1,D5            ; miramos el segundo bit del registro
+    BNE REGISTROS_11X       ; si no es 0, saltamos para mirar el registro 11X
+    
+        ;10X
+         BTST.L #0,D5       ; miramos el primer bit del registro
+         BEQ REGISTRO_X4    ; si es 0, el registro es R4
+         JMP REGISTRO_X5    ; si es 0, el registro es R5
+    
+        REGISTROS_11X:
+         BTST.L #0,D5       ; miramos el primer bit del registro
+         BEQ REGISTRO_X6    ; si es 0, el registro es T6
+         JMP REGISTRO_X7    ; si es 0, el registro es T7
+    
+
+  ; A partir de aquí guardamos las direcciones y salimos de la subrutina 
+   REGISTRO_T0:
+    LEA.L ET0,A5            ; guardamos el contenido de ET0 en A5
+    JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+    
+   REGISTRO_T1:
+    LEA.L ET1,A5            ; guardamos el contenido de ET1 en A5
+    JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+    
+   REGISTRO_X2:
+    LEA.L EX2,A5            ; guardamos el contenido de EX2 en A5
+    JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+    
+   REGISTRO_X3:
+    LEA.L EX3,A5            ; guardamos el contenido de EX3 en A5
+    JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+    
+   REGISTRO_X4:
+    LEA.L EX4,A5            ; guardamos el contenido de EX4 en A5
+    JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+    
+   REGISTRO_X5:
+    LEA.L EX5,A5            ; guardamos el contenido de EX5 en A5
+    JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+    
+   REGISTRO_X6:
+    LEA.L EX6,A5            ; guardamos el contenido de EX6 en A5
+    JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+    
+   REGISTRO_X7:
+    LEA.L EX7,A5            ; guardamos el contenido de EX7 en A5
+    JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+    
+   FIN_REGISTROS: 
+    RTS
+
         
     ;--- FSUBR: FIN SUBRUTINAS
     
@@ -231,6 +376,7 @@ DECOD:
 
     ;--- FDECOD: FIN DECOD
     END    START
+
 
 *~Font name~Courier New~
 *~Font size~18~
