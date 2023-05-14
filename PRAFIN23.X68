@@ -107,7 +107,7 @@ EGOZ:
 EGON:
 EEXIT:
 ECOPY:
-EADD:
+EADD:                       ; Rc <-- [Rb] + [Ra]
     MOVE.W EIR, D5          ; movemos la instr. a D5
     JSR CogerA              ; llamamos a la sub. de usuario para coger el valor
     MOVE.W A5, A1           ; de A y lo movemos a A1
@@ -126,14 +126,67 @@ EADD:
     
     MOVE.W SR,D2            ; guardamos los flags del 68k en D2
     CLR.W D4                
-    JSR FLAGS               ; actualizamos los eflags
+    JSR Flags_CNZ           ; actualizamos los eflags
     
     MOVE.W D6, (A3)         ; movemos D6 =  Xc <-- [Xa] + [Xb]
     
     BRA FETCH
     
-ESUB:
-EAND:
+ESUB:                       ; Rc <-- [Rb] - [Ra]
+
+    MOVE.W EIR, D5          ; movemos la instr. a D5
+    JSR CogerA              ; llamamos a la sub. de usuario para coger el valor
+    MOVE.W A5, A1           ; de A y lo movemos a A1
+    
+    MOVE.W EIR, D5
+    JSR CogerB              ; llamamos a la sub. de usuario para coger el valor
+    MOVE.W A5, A2           ; de B y lo movemos a A2
+    
+    MOVE.W EIR, D5
+    JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
+    MOVE.W A5, A3           ; de C y lo movemos a A3
+    
+    CLR.L D6                ; preparamos D6 para poder poner el resultado
+    ADD.W (A1),D6           ; sumamos el contenido de A1 (A) a D6
+    NOT.W D6                ; negamos y sumamos 1 a A para hacer una resta
+    ADDQ.W #1, D6
+    ADD.W (A2),D6           ; B + (-A)
+
+    MOVE.W SR,D2            ; guardamos los flags del 68k en D2
+    CLR.W D4                
+    JSR Flags_CNZ           ; actualizamos los eflags
+    
+    MOVE.W D6, (A3)         ; movemos D6 =  Xc <-- [Xa] + [Xb]
+    
+    BRA FETCH
+    
+EAND:                       ; Rc <-- [Rb] and [Ra]
+
+    MOVE.W EIR, D5          ; movemos la instr. a D5
+    JSR CogerA              ; llamamos a la sub. de usuario para coger el valor
+    MOVE.W A5, A1           ; de A y lo movemos a A1
+    
+    MOVE.W EIR, D5
+    JSR CogerB              ; llamamos a la sub. de usuario para coger el valor
+    MOVE.W A5, A2           ; de B y lo movemos a A2
+    
+    MOVE.W EIR, D5
+    JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
+    MOVE.W A5, A3           ; de C y lo movemos a A3
+
+    MOVE.W (A1),D6
+    MOVE.W (A2),D7
+    AND.W   D7 ,D6
+    
+    MOVE.W SR,D2            ; guardamos los flags del 68k en D2
+    CLR.W D4                
+    JSR Flags_NZ           ; actualizamos los eflags
+    
+    MOVE.W D6, (A3)         ; movemos D6 =  Xc <-- [Xa] + [Xb]
+    
+    BRA FETCH
+
+
 ESET:
 EADQ:
 ELSH:
@@ -376,6 +429,7 @@ DECOD:
 
     ;--- FDECOD: FIN DECOD
     END    START
+
 
 
 *~Font name~Courier New~
