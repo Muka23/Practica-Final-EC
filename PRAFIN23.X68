@@ -99,15 +99,56 @@ JMPLIST:
 	
 	; ESCRIBID EN CADA ETIQUETA LA FASE DE EJECUCION DE CADA INSTRUCCION
 ELOA:
+*--------------------------------------------------
 ESTO:
+*--------------------------------------------------
 ELOIP:
+*--------------------------------------------------
 ESTIP:
-EGOI:
-EGOZ:
-EGON:
+*--------------------------------------------------
+EGOI:                       ; PC <-- M
+
+    MOVE.W EIR, D5          ; movemos la instr. a D5
+    JSR CogerM              ; llamamos a la subr. para coger M
+    MOVE.W D5, EPC          ; guardamos D5 en el PC del eprograma
+    
+    BRA FETCH
+                   
+*--------------------------------------------------
+EGOZ:                       ; si Z=1,  PC <-- M
+
+    MOVE.W ESR, D2          ; movemos los eflags a D2
+    BTST.L #0, D2           ; comprobamos si el eflag Z es 1
+    BEQ Z0                  ; si es 0 saltamos al final de la instr.
+    
+    MOVE.W EIR, D5          ; movemos la instr. a D5
+    JSR CogerM              ; llamamos a la subr. para coger M
+    MOVE.W D5, EPC          ; guardamos D5 en el PC del eprograma
+
+Z0:
+    BRA FETCH    
+    
+*--------------------------------------------------
+EGON:                       ; si N=1,  PC <-- M
+
+    MOVE.W ESR, D2          ; movemos los eflags a D2
+    BTST.L #1, D2           ; comprobamos si el eflag N es 1
+    BEQ N0                  ; si es 0 saltamos al final de la instr.
+    
+    MOVE.W EIR, D5          ; movemos la instr. a D5
+    JSR CogerM              ; llamamos a la subr. para coger M
+    MOVE.W D5, EPC          ; guardamos D5 en el PC del eprograma
+
+N0:
+    BRA FETCH    
+    
+*--------------------------------------------------
 EEXIT:
+*--------------------------------------------------
 ECOPY:
+*--------------------------------------------------
 EADD:                       ; Rc <-- [Rb] + [Ra]
+
     MOVE.W EIR, D5          ; movemos la instr. a D5
     JSR CogerA              ; llamamos a la sub. de usuario para coger el valor
     MOVE.W A5, A1           ; de A y lo movemos a A1
@@ -128,10 +169,10 @@ EADD:                       ; Rc <-- [Rb] + [Ra]
     CLR.W D4                
     JSR Flags_CNZ           ; actualizamos los eflags
     
-    MOVE.W D6, (A3)         ; movemos D6 =  Xc <-- [Xa] + [Xb]
+    MOVE.W D6, (A3)         ; movemos el resultado a Rc
     
     BRA FETCH
-    
+*--------------------------------------------------    
 ESUB:                       ; Rc <-- [Rb] - [Ra]
 
     MOVE.W EIR, D5          ; movemos la instr. a D5
@@ -156,10 +197,10 @@ ESUB:                       ; Rc <-- [Rb] - [Ra]
     CLR.W D4                
     JSR Flags_CNZ           ; actualizamos los eflags
     
-    MOVE.W D6, (A3)         ; movemos D6 =  Xc <-- [Xa] + [Xb]
+    MOVE.W D6, (A3)         ; movemos el resultado a Rc
     
     BRA FETCH
-    
+*--------------------------------------------------    
 EAND:                       ; Rc <-- [Rb] and [Ra]
 
     MOVE.W EIR, D5          ; movemos la instr. a D5
@@ -174,22 +215,24 @@ EAND:                       ; Rc <-- [Rb] and [Ra]
     JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
     MOVE.W A5, A3           ; de C y lo movemos a A3
 
-    MOVE.W (A1),D6
+    MOVE.W (A1),D6          ; movemos A y B a los registros de dat.
     MOVE.W (A2),D7
-    AND.W   D7 ,D6
+    AND.W   D7 ,D6          ; A and B
     
     MOVE.W SR,D2            ; guardamos los flags del 68k en D2
     CLR.W D4                
-    JSR Flags_NZ           ; actualizamos los eflags
+    JSR Flags_NZ            ; actualizamos los eflags
     
-    MOVE.W D6, (A3)         ; movemos D6 =  Xc <-- [Xa] + [Xb]
+    MOVE.W D6, (A3)         ; movemos el resultado a Rc
     
     BRA FETCH
-
-
+*--------------------------------------------------
 ESET:
+*--------------------------------------------------
 EADQ:
+*--------------------------------------------------
 ELSH:
+*--------------------------------------------------
     ;--- FEXEC: FIN EJECUCION
     
     
@@ -230,14 +273,14 @@ CogerI:
     
     RTS
     
-CogerJ:
-    LSR.L #2,D5             ; movemos D5 4 posiciones a la derecha
-    AND.W #0001,D5          ; con una máscara, cogemos el valor de J
+CogerP:
+    LSR.L #8,D5             ; movemos D5 8 posiciones a la derecha
+    AND.W #0007,D5          ; con una máscara, cogemos el valor de P (ppp)
     
     RTS
     
 CogerM:
-    LSR.L #4,D5             ; movemos D5 4 posiciones a la derecha
+    LSR.L #1,D5             ; movemos D5 4 posiciones a la derecha
     AND.W #$00FF,D5         ; con una máscara, cogemos el valor de M (mmmmmmmm)
     
     RTS
