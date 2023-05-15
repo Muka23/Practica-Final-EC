@@ -3,6 +3,12 @@
 * Written by : <nombres completos de los autores>
 * Date       : 19/05/2023
 * Description: Emulador de la HAL9000
+
+* Dudas = 
+* -(instrucciones ADD) cuando coges un reg y lo sumas
+*   hay que hacer (A1) o A1
+* - instrucciones LOIP y STIP  ¿Xb <-- [Xb] + 1? ¿es pila?
+*
 *-----------------------------------------------------------
     ORG $1000
 EMEM:   DC.W $E082,$E09B,$E0B4,$E01D,$2020,$C006,$2031,$C017,$F160
@@ -99,28 +105,52 @@ JMPLIST:
 	
 	; ESCRIBID EN CADA ETIQUETA LA FASE DE EJECUCION DE CADA INSTRUCCION
 ELOA:                       ; Ti <-- [M]
-    MOVE.W EIR, D5
-    JSR CogerM
-    MOVE.W D5, D6
+    MOVE.W EIR, D5          ; metemos la instr. en D5
+    JSR CogerM              ; sacamaos el valor de M
+    MOVE.W D5, D6           ; guardamos el valor de M en D6
     
-    MOVEA.L EMEM(D6),A2
+    MOVEA.M EMEM(D6),A2     ; sumamos la dirección de EMemoria + M y la 
+                            ; y la guardamos en A2
+    MOVE.W EIR, D5          ; movemos la inst. a D5, ya que hemos modificado D5
+    JSR CogerI              ; sacamos el valor de I
+    CMP #0, D5              ; comparamos I con 0              
+    BNE I1_Load             ; si no son iguales significa que I es 1, por tanto,
+                            ; saltamos al caso donde I es 1
+    MOVE.W (A2),ET0         ; cuando I es 0, guardamos el contenido de Emem + M
+                            ; en ET0
+    MOVE.W SR, D2           ; movemos los flags a D2
+    JMP FINAL_Load          ; saltamos al final del ELoad    
+   
+   I1_Load:
+    MOVE.W (A2),ET1
+    MOVE.W SR, D2           ; movemos los flags a D2
     
-    MOVE.W EIR, D5
-    JSR CogerI
-    CMP #0, D5
-    BNE J1_ELOAD
-    
-    MOVE (A2),ET0
-    JMP FINAL_ELOAD
-    
-  J1_ELOAD:
-    
-    
-    
-    
+ FINAL_Load:
+    CLR.W D4                ; limpiamos el registro D4, para modificar los flags
+    JSR FLAGS_NZ
+    BRA FETCH            
 *--------------------------------------------------
-ESTO:
-
+ESTO:                       ; M <-- [Ti]
+    MOVE.W EIR, D5          ; metemos la instr. en D5
+    JSR CogerM              ; sacamaos el valor de M
+    MOVE.W D5, D6           ; guardamos el valor de M en D6   
+    
+    MOVEA.M EMEM(D6),A2     ; A2 <-- EMEM + M (direcciones de memoria)
+ 
+    MOVE.W EIR, D5          ; metemos la instr. en D5
+    JSR CojerI              ; cojemos el valor de I
+    CMP #0, D5              ; si i = 1 saltamos al caso de ET1
+    BNE I1_Store            
+    
+    MOVE.W ET0, A2          ; movemos el contenido de ET0 a EMEM + M
+    JMP FINAL_Store
+    
+   I1_Store:
+    MOVE.W ET1, A2          ; movemos el contenido de ET1 a EMEM + M
+  
+  FINAL_Store:
+    BRA FETCH
+    
 *--------------------------------------------------
 ELOIP:
 
@@ -165,9 +195,27 @@ EGON:                       ; si N=1,  PC <-- M
     BRA FETCH    
     
 *--------------------------------------------------
-EEXIT:
+EEXIT:                      ; Detiene la maquina
+    JMP SIMHALT
 *--------------------------------------------------
-ECOPY:
+ECOPY:                      ; Rc <-- Rb
+
+    MOVE.W EIR, D5          ; movemos la inst. a D5
+    JSR CogerB              ; cogemos B
+    MOVE.W A5, A2           ; guardamos B en A2
+    
+    MOVE.W EIR, D5          ; movemos de nuevo la inst. a D5,ya que se modificó
+    JSR CogerC              ; cogemos C
+    MOVE.W A5, A1           ; guardamos C en A1
+    
+    MOVE.W (A2),(A1)        ; copiamos el contenido de A2 dentro de A1
+    
+    MOVE.W SR, D2           ; copiamos los flags a D2
+    CLR.W D4                ; limpiamos D4 por si hay algo, ya que lo 
+    JSR FLAGS_NZ            ; necesitaremos D4 para actualizar los flags N y Z
+    
+    BRA FETCH
+    
 *--------------------------------------------------
 EADD:                       ; Rc <-- [Rb] + [Ra]
 
@@ -493,7 +541,11 @@ DECOD:
 
 
     ;--- FDECOD: FIN DECOD
+    
+SIMHALT:
+    SIMHALT                 ; detiene la máquina
     END    START
+
 
 
 
