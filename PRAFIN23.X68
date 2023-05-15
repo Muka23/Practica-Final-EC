@@ -98,13 +98,35 @@ JMPLIST:
         ;*** En esta seccion debeis implementar la ejecucion de cada einstr.
 	
 	; ESCRIBID EN CADA ETIQUETA LA FASE DE EJECUCION DE CADA INSTRUCCION
-ELOA:
+ELOA:                       ; Ti <-- [M]
+    MOVE.W EIR, D5
+    JSR CogerM
+    MOVE.W D5, D6
+    
+    MOVEA.L EMEM(D6),A2
+    
+    MOVE.W EIR, D5
+    JSR CogerI
+    CMP #0, D5
+    BNE J1_ELOAD
+    
+    MOVE (A2),ET0
+    JMP FINAL_ELOAD
+    
+  J1_ELOAD:
+    
+    
+    
+    
 *--------------------------------------------------
 ESTO:
+
 *--------------------------------------------------
 ELOIP:
+
 *--------------------------------------------------
 ESTIP:
+
 *--------------------------------------------------
 EGOI:                       ; PC <-- M
 
@@ -125,7 +147,7 @@ EGOZ:                       ; si Z=1,  PC <-- M
     JSR CogerM              ; llamamos a la subr. para coger M
     MOVE.W D5, EPC          ; guardamos D5 en el PC del eprograma
 
-Z0:
+  Z0:
     BRA FETCH    
     
 *--------------------------------------------------
@@ -139,7 +161,7 @@ EGON:                       ; si N=1,  PC <-- M
     JSR CogerM              ; llamamos a la subr. para coger M
     MOVE.W D5, EPC          ; guardamos D5 en el PC del eprograma
 
-N0:
+  N0:
     BRA FETCH    
     
 *--------------------------------------------------
@@ -472,6 +494,7 @@ DECOD:
 
     ;--- FDECOD: FIN DECOD
     END    START
+
 
 
 
