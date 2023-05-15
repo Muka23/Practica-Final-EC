@@ -8,7 +8,7 @@
 * -(instrucciones ADD) cuando coges un reg y lo sumas
 *   hay que hacer (A1) o A1
 * - instrucciones LOIP y STIP  ¿Xb <-- [Xb] + 1? ¿es pila?
-*
+* - Diferencia entre SET y ADQ solo move en vez de add? 
 *-----------------------------------------------------------
     ORG $1000
 EMEM:   DC.W $E082,$E09B,$E0B4,$E01D,$2020,$C006,$2031,$C017,$F160
@@ -297,9 +297,40 @@ EAND:                       ; Rc <-- [Rb] and [Ra]
     
     BRA FETCH
 *--------------------------------------------------
-ESET:
+ESET:                       ; Rc <-- k (ext. signo)
+    MOVE.W EIR, D5          ; movemos la instr. a D5
+    JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
+    MOVE.W A5, A3           ; de C y lo movemos a A3
+    
+    MOVE.W EIR, D5          ; movemos la instr. a D5
+    JSR CogerK              ; cogemos k (dentro se realiza la ext. de signo)
+    MOVE.W D5, D6           ; guardamos k en D6
+    
+    MOVE.W D6,(A3)          ; guardamos D6 (k) dentro de A3 (C)
+    
+    MOVE.W SR,D2            ; guardamos los flags del 68k en D2
+    CLR.W D4                ; limpiamos D4 por si hay algo, ya que lo 
+    JSR FLAGS_NZ            ; necesitaremos D4 para actualizar los flags N y Z
+
+    BRA FETCH
+
 *--------------------------------------------------
-EADQ:
+EADQ:                       ; Rc <-- [Rc] + k (ext. signo)
+    MOVE.W EIR, D5          ; movemos la instr. a D5
+    JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
+    MOVE.W A5, A3           ; de C y lo movemos a A3
+    
+    MOVE.W EIR, D5          ; movemos la instr. a D5
+    JSR CogerK              ; cogemos k (dentro se realiza la ext. de signo)
+    MOVE.W D5, D6           ; guardamos k en D6
+    
+    ADD.W D6,(A3)           ; sumamos D6 (k) con A3(C) y lo guardamos en A3(C)
+    
+    MOVE.W SR,D2            ; guardamos los flags del 68k en D2
+    CLR.W D4                ; limpiamos D4 por si hay algo, ya que lo 
+    JSR FLAGS_CNZ           ; necesitaremos D4 para actualizar todos los eflags
+
+    BRA FETCH
 *--------------------------------------------------
 ELSH:
 *--------------------------------------------------
