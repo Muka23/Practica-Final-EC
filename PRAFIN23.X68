@@ -332,7 +332,35 @@ EADQ:                       ; Rc <-- [Rc] + k (ext. signo)
 
     BRA FETCH
 *--------------------------------------------------
-ELSH:
+ELSH:                       ; si n=0 => Rb <-- [Rb] left shift p
+                            ; si n=1 => Rb <-- [Rb] right shift p
+    MOVE.W EIR, D5          ; movemos la inst. a D5
+    JSR CogerB              ; cogemos el registro B
+    MOVE.W A5, A2           ; guardamos el Rb en A2
+    
+    MOVE.W EIR, D5          ; movemos la inst. a D5
+    JSR CogerP              ; cogemos P
+    MOVE.W D5, D6           ; guardamos D5(P) en D6
+
+    MOVE.W EIR, D5          ; movemos la intsrucción a D5
+    JSR CogerN              ; cogemos el valor de N
+    CMP #0, D5              ; comparamos 0 con N
+    BNE RShift              ; si N es 1 saltamos a right shift
+    
+    LSL.W D6, (A2)          ; n=0, por tanto hacemos un LSL con desp. D6(P)
+    MOVE.W SR, D2           ; guardamos los flags después de la operación
+    JMP FINAL_LSH           ; saltamos al final
+    
+   RShift:
+    LSR.W D6, (A2)          ; n=1, por tanto hacemos un LSR con desp. D6(P)
+    MOVE.W SR, D2           ; guardamos los flags 
+    
+ FINAL_LSH:
+    CLR.W D4                ; limpiamos D4 porque lo utilizamos para actualizar
+    JSR FLAGS_CNZ           ; los flags CNZ
+    
+    BRA FETCH
+    
 *--------------------------------------------------
     ;--- FEXEC: FIN EJECUCION
     
@@ -371,6 +399,11 @@ CogerC:
    
 CogerI:
     AND.W #0001,D5          ; con una máscara, cogemos el valor de I
+    
+    RTS
+    
+CogerN:
+    AND.W #0001,D5          ; con una máscara, cogemos el valor de N
     
     RTS
     
@@ -576,6 +609,7 @@ DECOD:
 SIMHALT:
     SIMHALT                 ; detiene la máquina
     END    START
+
 
 
 
