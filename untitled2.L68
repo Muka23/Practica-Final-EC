@@ -1,0 +1,32 @@
+00001002 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 17/05/2023 10:12:59
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      :
+00000000                             3  * Written by :
+00000000                             4  * Date       :
+00000000                             5  * Description:
+00000000                             6  *-----------------------------------------------------------
+00001000                             7      ORG    $1000
+00001000= 0000                       8  A:  DC.W 0
+00001002                             9  
+00001002                            10  START:                  ; first instruction of program
+00001002  08C0 0004                 11      BSET.L #4, D0 
+00001006                            12  * Put program code here
+00001006                            13  
+00001006  FFFF FFFF                 14      SIMHALT             ; halt simulator
+0000100A                            15  
+0000100A                            16  * Put variables and constants here
+0000100A                            17  
+0000100A                            18      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+A                   1000
+START               1002
