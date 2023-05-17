@@ -107,9 +107,9 @@ JMPLIST:
 ELOA:                       ; Ti <-- [M]
     MOVE.W EIR, D5          ; metemos la instr. en D5
     JSR CogerM              ; sacamaos el valor de M
-    MOVE.W D5, D6           ; guardamos el valor de M en D6
+    MOVEA.W D5, A3           ; guardamos el valor de M en D6
     
-    MOVEA.M EMEM(D6),A2     ; sumamos la dirección de EMemoria + M y la 
+    MOVEA.W EMEM(A3),A2     ; sumamos la dirección de EMemoria + M y la 
                             ; y la guardamos en A2
     MOVE.W EIR, D5          ; movemos la inst. a D5, ya que hemos modificado D5
     JSR CogerI              ; sacamos el valor de I
@@ -133,12 +133,12 @@ ELOA:                       ; Ti <-- [M]
 ESTO:                       ; M <-- [Ti]
     MOVE.W EIR, D5          ; metemos la instr. en D5
     JSR CogerM              ; sacamaos el valor de M
-    MOVE.W D5, D6           ; guardamos el valor de M en D6   
+    MOVEA.W D5, A3           ; guardamos el valor de M en D6   
     
-    MOVEA.M EMEM(D6),A2     ; A2 <-- EMEM + M (direcciones de memoria)
+    MOVEA.W EMEM(A3),A2     ; A2 <-- EMEM + M (direcciones de memoria)
  
     MOVE.W EIR, D5          ; metemos la instr. en D5
-    JSR CojerI              ; cojemos el valor de I
+    JSR CogerI
     CMP #0, D5              ; si i = 1 saltamos al caso de ET1
     BNE I1_Store            
     
@@ -380,6 +380,7 @@ ELSH:                       ; si n=0 => Rb <-- [Rb] left shift p
     MOVE.W EIR, D5          ; movemos la inst. a D5
     JSR CogerB              ; cogemos el registro B
     MOVE.W A5, A2           ; guardamos el Rb en A2
+    MOVE.W (A2),D7
     
     MOVE.W EIR, D5          ; movemos la inst. a D5
     JSR CogerP              ; cogemos P
@@ -390,12 +391,12 @@ ELSH:                       ; si n=0 => Rb <-- [Rb] left shift p
     CMP #0, D5              ; comparamos 0 con N
     BNE RShift              ; si N es 1 saltamos a right shift
     
-    LSL.W D6, (A2)          ; n=0, por tanto hacemos un LSL con desp. D6(P)
+    LSL.W D6 , D7           ; n=0, por tanto hacemos un LSL con desp. D6(P)
     MOVE.W SR, D2           ; guardamos los flags después de la operación
     JMP FINAL_LSH           ; saltamos al final
     
    RShift:
-    LSR.W D6, (A2)          ; n=1, por tanto hacemos un LSR con desp. D6(P)
+    LSR.W D6, D7          ; n=1, por tanto hacemos un LSR con desp. D6(P)
     MOVE.W SR, D2           ; guardamos los flags 
     
  FINAL_LSH:
@@ -544,21 +545,21 @@ REGISTROS:
 
 FLAGS_CNZ:
     MOVE D2,D3              ; copiamos los flags para poder manipularlos
-    BTST.L #2,D3            ; miramos C
+    BTST.L #0,D3            ; miramos C
     BEQ FLAGS_NZ            ; si C es 0, saltamos a mirar el flag Z
     
     BSET #2,D4              ; si no es 0, pondremos a 1 el valor de C en D4
     
 FLAGS_NZ:
     MOVE.W D2,D3            ; copiamos los flags para poder manipularlos
-    BTST.L #1,D3            ; miramos N
+    BTST.L #3,D3            ; miramos N
     BEQ FLAG_Z              ; si N es 0, saltamos a mirar el siguiente flag
     
     BSET.L #1,D4            ; si no es 0, pondremos a 1 el valor de N en D4
     
    FLAG_Z:
     MOVE.W D2,D3            ; copiamos los flags para poder manipularlos
-    BTST.L #0,D3            ; miramos Z
+    BTST.L #2,D3            ; miramos Z
     BEQ FINAL_FLAGS         ; si Z es 0, saltamos al final de los flags
     
     BSET.L #0,D4            ; si no es 0, pondremos a 1 el valor de Z en D4
@@ -679,6 +680,7 @@ DECOD:
 SIMHALT:
     SIMHALT                 ; detiene la máquina
     END    START
+
 
 
 
