@@ -380,7 +380,8 @@ ELSH:                       ; si n=0 => Rb <-- [Rb] left shift p
     MOVE.W EIR, D5          ; movemos la inst. a D5
     JSR CogerB              ; cogemos el registro B
     MOVE.W A5, A2           ; guardamos el Rb en A2
-    MOVE.W (A2),D7
+    MOVE.W (A2),D7          ; movemos el contenido de A2(B) a un registro
+                            ; temporal
     
     MOVE.W EIR, D5          ; movemos la inst. a D5
     JSR CogerP              ; cogemos P
@@ -393,11 +394,13 @@ ELSH:                       ; si n=0 => Rb <-- [Rb] left shift p
     
     LSL.W D6 , D7           ; n=0, por tanto hacemos un LSL con desp. D6(P)
     MOVE.W SR, D2           ; guardamos los flags después de la operación
+    MOVE.W D7, A2           ; guardamos el resultado en A2(B)
     JMP FINAL_LSH           ; saltamos al final
     
    RShift:
-    LSR.W D6, D7          ; n=1, por tanto hacemos un LSR con desp. D6(P)
+    LSR.W D6, D7            ; n=1, por tanto hacemos un LSR con desp. D6(P)
     MOVE.W SR, D2           ; guardamos los flags 
+    MOVE.W D7, A2           ; guardamos el resultado en A2(B)
     
  FINAL_LSH:
     CLR.W D4                ; limpiamos D4 porque lo utilizamos para actualizar
