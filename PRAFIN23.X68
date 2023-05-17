@@ -539,7 +539,34 @@ REGISTROS:
     
    FIN_REGISTROS: 
     RTS
+*--------------------------------------
+; Flags 68k = NZVC
 
+FLAGS_CNZ:
+    MOVE D2,D3              ; copiamos los flags para poder manipularlos
+    BTST #0,D3              ; miramos C
+    BEQ FLAGS_NZ            ; si C es 0, saltamos a mirar el flag Z
+    
+    BSET #0,D4              ; si no es 0, pondremos a 1 el valor de C en D4
+    
+FLAGS_NZ:
+    MOVE.W D2,D3            ; copiamos los flags para poder manipularlos
+    BTST #2,D3              ; miramos Z
+    BEQ N                   ; si Z es 0, saltamos a mirar el siguiente flag
+    
+    BSET #1,D4              ; si no es 0, pondremos a 1 el valor de Z en D4
+    
+   N:
+    MOVE.W D2,D3            ; copiamos los flags para poder manipularlos
+    BTST #3,D3              ; miramos N
+    BEQ FINAL_FLAGS         ; si N es 0, saltamos al final de los flags
+    
+    BSET #2,D4              ; si no es 0, pondremos a 1 el valor de N en D4
+    
+   FINAL_FLAGS:
+    MOVE.W D4,ESR           ; movemos D4 (flags finales) a ESR, los eflags
+    RTS
+        
         
     ;--- FSUBR: FIN SUBRUTINAS
     
