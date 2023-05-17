@@ -152,10 +152,53 @@ ESTO:                       ; M <-- [Ti]
     BRA FETCH
     
 *--------------------------------------------------
-ELOIP:
+ELOIP:                      ; Ti <-- [[Xb]], Xb <-- [Xb] + 1
+    MOVE.W EIR, D5          ; metemos la instr. en D5
+    JSR CogerB              ; sacamaos el registro B
+    MOVE.W A5, A2           ; guardamos el Rb en A2
+    
+    MOVE.W EIR, D5          ; metemos la inst. en D5
+    JSR CogerI              ; cogemos I
+    CMP #0, D5              ; comparamos D5(I) con 0
+    BNE I1_LOIP             ; si no son iguales saltamos donde I = 1
+    
+    MOVE.W (A2),ET0         ; T0 <-- [[Rb]]
+    MOVE.W SR, D2           ; guardamos los flags despues de la op.
+    ADD.W #1, (A2)          ; Xb <-- [Xb] + 1   
+    JMP FINAL_LOIP
+    
+   I1_LOIP:
+    MOVE.W (A2),ET1         ; T1 <-- [[Rb]]
+    MOVE.W SR, D2           ; guardamos los flags despues de la op.
+    ADD.W #1, (A2)          ; Xb <-- [Xb] + 1   
+    
+ FINAL_LOIP:
+    CLR.W D4                ; limpiamos D4 por si hay algo, ya que lo 
+    JSR FLAGS_NZ            ; necesitaremos D4 para actualizar los flags N y Z
+    
+    BRA FETCH
 
 *--------------------------------------------------
-ESTIP:
+ESTIP:                      ; [Xb] <-- [Ti], Xb <-- [Xb] + 1
+    MOVE.W EIR, D5          ; metemos la instr. en D5
+    JSR CogerB              ; sacamaos el registro B
+    MOVE.W A5, A2           ; guardamos el Rb en A2
+    
+    MOVE.W EIR, D5          ; metemos la inst. en D5
+    JSR CogerI              ; cogemos I
+    CMP #0, D5              ; comparamos D5(I) con 0
+    BNE I1_STIP             ; si no son iguales saltamos donde I = 1
+    
+    MOVE.W (ET0),(A2)       ; [Xb] <-- [T0]
+    ADD.W #1, (A2)          ; Xb <-- [Xb] + 1  
+    JMP FINAL_STIP
+    
+   I1_STIP:
+    MOVE.W (ET0),(A2)       ; [Xb] <-- [T0]
+    ADD.W #1, (A2)          ; Xb <-- [Xb] + 1  
+    
+ FINAL_STIP:
+    JMP FETCH
 
 *--------------------------------------------------
 EGOI:                       ; PC <-- M
@@ -264,7 +307,7 @@ ESUB:                       ; Rc <-- [Rb] - [Ra]
     ADD.W (A2),D6           ; B + (-A)
 
     MOVE.W SR,D2            ; guardamos los flags del 68k en D2
-    CLR.W D4                
+    CLR.W D4                ; limpiamos D4
     JSR Flags_CNZ           ; actualizamos los eflags
     
     MOVE.W D6, (A3)         ; movemos el resultado a Rc
@@ -290,7 +333,7 @@ EAND:                       ; Rc <-- [Rb] and [Ra]
     AND.W   D7 ,D6          ; A and B
     
     MOVE.W SR,D2            ; guardamos los flags del 68k en D2
-    CLR.W D4                
+    CLR.W D4                ; limpiamos D4 
     JSR Flags_NZ            ; actualizamos los eflags
     
     MOVE.W D6, (A3)         ; movemos el resultado a Rc
