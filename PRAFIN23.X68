@@ -551,8 +551,9 @@ FLAGS_CNZ:
     BTST.L #0,D3            ; miramos C
     BEQ FLAGS_NZ            ; si C es 0, saltamos a mirar el flag Z
     
-    BSET #2,D4              ; si no es 0, pondremos a 1 el valor de C en D4
+    BSET.L #2,D4              ; si no es 0, pondremos a 1 el valor de C en D4
     
+*--------------------------------------    
 FLAGS_NZ:
     MOVE.W D2,D3            ; copiamos los flags para poder manipularlos
     BTST.L #3,D3            ; miramos N
@@ -683,6 +684,7 @@ DECOD:
 SIMHALT:
     SIMHALT                 ; detiene la máquina
     END    START
+
 
 
 
