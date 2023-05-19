@@ -1,6 +1,6 @@
-00001026 Starting Address
+00001048 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.16.01
-Created On: 18/05/2023 12:33:19
+Created On: 19/05/2023 21:13:04
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      : PRAFIN23
@@ -15,677 +15,679 @@ Created On: 18/05/2023 12:33:19
 00000000                            11  * - Diferencia entre SET y ADQ solo move en vez de add? 
 00000000                            12  *-----------------------------------------------------------
 00001000                            13      ORG $1000
-00001000= 000F C012 400A D...       14  EMEM: DC.W $000F,$C012,$400A,$D222,$8000,$CA22,$8000,$0001
-00001010= 0000                      15  EIR: DC.W 0 ;eregistro de instruccion
-00001012= 0000                      16  EPC: DC.W 0 ;econtador de programa
-00001014= 0000                      17  ET0: DC.W 0 ;eregistro T0
-00001016= 0000                      18  ET1: DC.W 0 ;eregistro T1
-00001018= 0000                      19  EX2: DC.W 0 ;eregistro X2
-0000101A= 0000                      20  EX3: DC.W 0 ;eregistro X3
-0000101C= 0000                      21  EX4: DC.W 0 ;eregistro X4
-0000101E= 0000                      22  EX5: DC.W 0 ;eregistro X5
-00001020= 0000                      23  EX6: DC.W 0 ;eregistro X6
-00001022= 0000                      24  EX7: DC.W 0 ;eregistro X7
-00001024= 0000                      25  ESR: DC.W 0 ;eregistro de estado (00000000 00000CNZ
-00001026                            26  
-00001026                            27  START:
-00001026  4278 1012                 28      CLR.W EPC
-0000102A                            29  
-0000102A                            30  FETCH:
-0000102A                            31      ;--- IFETCH: INICIO FETCH
-0000102A                            32          ;*** En esta seccion debeis introducir el codigo necesario para cargar
-0000102A                            33          ;*** en el EIR la siguiente instruccion a ejecutar, indicada por el EPC,
-0000102A                            34          ;*** y dejar listo el EPC para que apunte a la siguiente instruccion
-0000102A                            35      
-0000102A                            36              ; ESCRIBID VUESTRO CODIGO AQUI      
-0000102A                            37          
-0000102A  3038 1012                 38      MOVE.W EPC,D0           ; movemos el contador a D0
-0000102E  C0FC 0002                 39      MULU.W #2,D0            ; multiplicamos x2 D0
-00001032                            40      
-00001032  41F8 1000                 41      LEA.L EMEM,A0           ; cogemos la dirección de la memoria
-00001036  D0C0                      42      ADD.W D0,A0             ; sumamos D0 (PC) a A0 para tener la dirección de
-00001038                            43                                  ; la instrucción a ejecutar
-00001038                            44      
-00001038  5278 1012                 45      ADD.W #1,EPC            ; sumamos 1 al EPC para ya apuntar a la siguiente
-0000103C  31D0 1010                 46      MOVE.W (A0),EIR         ; movemos la instrucción al eregistro
-00001040                            47                                  ; de instrucción
-00001040                            48      
-00001040                            49          
-00001040                            50      ;--- FFETCH: FIN FETCH
-00001040                            51      
-00001040                            52      
-00001040                            53      
-00001040                            54      ;--- IBRDECOD: INICIO SALTO A DECOD
-00001040                            55          ;*** En esta seccion debeis preparar la pila para llamar a la subrutina
-00001040                            56          ;*** DECOD, llamar a la subrutina, y vaciar la pila correctamente,
-00001040                            57          ;*** almacenando el resultado de la decodificacion en D1
-00001040                            58  
-00001040                            59              ; ESCRIBID VUESTRO CODIGO AQUI          
-00001040                            60  IBREDECOD:
-00001040  3F3C 0000                 61      MOVE.W #0,-(A7)         ; preparamos la pila
-00001044  3F38 1010                 62      MOVE.W (EIR),-(A7)      ; metemos la instrucción en la pila
-00001048                            63      
-00001048  4EB9 00001486             64      JSR DECOD               ; saltamos a la subrutina de librería
-0000104E                            65                                  ; de decodificación
-0000104E                            66                                  
-0000104E  544F                      67      ADDQ.W #2,A7            ; sumamos 2 a A7
-00001050  321F                      68      MOVE.W (A7)+,D1         ; en D1 tenemos la instrucción a ejecutar
-00001052                            69  
-00001052                            70          
-00001052                            71      ;--- FBRDECOD: FIN SALTO A DECOD
-00001052                            72      
-00001052                            73      
-00001052                            74      
-00001052                            75      ;--- IBREXEC: INICIO SALTO A FASE DE EJECUCION
-00001052                            76          ;*** Esta seccion se usa para saltar a la fase de ejecucion
-00001052                            77          ;*** NO HACE FALTA MODIFICARLA
-00001052  C2FC 0006                 78      MULU #6,D1
-00001056  2241                      79      MOVEA.L D1,A1
-00001058  4EE9 105C                 80      JMP JMPLIST(A1)
-0000105C                            81  JMPLIST:
-0000105C  4EF9 000010B6             82      JMP ELOA
-00001062  4EF9 000010F6             83      JMP ESTO
-00001068  4EF9 0000112A             84      JMP ELOIP
-0000106E  4EF9 0000116A             85      JMP ESTIP
-00001074  4EF9 0000119E             86      JMP EGOI
-0000107A  4EF9 000011B0             87      JMP EGOZ
-00001080  4EF9 000011CE             88      JMP EGON
-00001086  4EF9 000011EC             89      JMP EEXIT
-0000108C  4EF9 000011F2             90      JMP ECOPY
-00001092  4EF9 0000121A             91      JMP EADD
-00001098  4EF9 00001254             92      JMP ESUB
-0000109E  4EF9 00001292             93      JMP EAND
-000010A4  4EF9 000012CC             94      JMP ESET
-000010AA  4EF9 000012F4             95      JMP EADQ
-000010B0  4EF9 0000131C             96      JMP ELSH
-000010B6                            97      ;--- FBREXEC: FIN SALTO A FASE DE EJECUCION
-000010B6                            98      
-000010B6                            99      
-000010B6                           100      
-000010B6                           101      ;--- IEXEC: INICIO EJECUCION
-000010B6                           102          ;*** En esta seccion debeis implementar la ejecucion de cada einstr.
-000010B6                           103      
-000010B6                           104      ; ESCRIBID EN CADA ETIQUETA LA FASE DE EJECUCION DE CADA INSTRUCCION
-000010B6                           105  ELOA:                       ; Ti <-- [M]
-000010B6  3A38 1010                106      MOVE.W EIR, D5          ; metemos la instr. en D5
-000010BA  4EB9 000013A2            107      JSR CogerM              ; sacamaos el valor de M
-000010C0  3645                     108      MOVEA.W D5, A3           ; guardamos el valor de M en D6
-000010C2                           109      
-000010C2  3A6B 1000                110      MOVEA.W EMEM(A3),A5     ; sumamos la dirección de EMemoria + M y la 
-000010C6                           111                              ; y la guardamos en A2
-000010C6  3A38 1010                112      MOVE.W EIR, D5          ; movemos la inst. a D5, ya que hemos modificado D5
-000010CA  4EB9 0000138E            113      JSR CogerI              ; sacamos el valor de I
-000010D0  BA7C 0000                114      CMP #0, D5              ; comparamos I con 0              
-000010D4  6600 000E                115      BNE I1_Load             ; si no son iguales significa que I es 1, por tanto,
-000010D8                           116                              ; saltamos al caso donde I es 1
-000010D8  31D5 1014                117      MOVE.W (A5),ET0         ; cuando I es 0, guardamos el contenido de Emem + M
-000010DC                           118                              ; en ET0
-000010DC  40C2                     119      MOVE.W SR, D2           ; movemos los flags a D2
-000010DE  4EF9 000010EA            120      JMP FINAL_Load          ; saltamos al final del ELoad    
-000010E4                           121     
-000010E4                           122     I1_Load:
-000010E4  31D5 1016                123      MOVE.W (A5),ET1
-000010E8  40C2                     124      MOVE.W SR, D2           ; movemos los flags a D2
-000010EA                           125      
-000010EA                           126   FINAL_Load:
-000010EA  4244                     127      CLR.W D4                ; limpiamos el registro D4, para modificar los flags
-000010EC  4EB9 00001464            128      JSR FLAGS_NZ
-000010F2  6000 FF36                129      BRA FETCH            
-000010F6                           130  *--------------------------------------------------
-000010F6                           131  ESTO:                       ; M <-- [Ti]
-000010F6  3A38 1010                132      MOVE.W EIR, D5          ; metemos la instr. en D5
-000010FA  4EB9 000013A2            133      JSR CogerM              ; sacamaos el valor de M
-00001100  3645                     134      MOVEA.W D5, A3           ; guardamos el valor de M en D6   
-00001102                           135      
-00001102  346B 1000                136      MOVEA.W EMEM(A3),A2     ; A2 <-- EMEM + M (direcciones de memoria)
-00001106                           137   
-00001106  3A38 1010                138      MOVE.W EIR, D5          ; metemos la instr. en D5
-0000110A  4EB9 0000138E            139      JSR CogerI
-00001110  BA7C 0000                140      CMP #0, D5              ; si i = 1 saltamos al caso de ET1
-00001114  6600 000C                141      BNE I1_Store            
-00001118                           142      
-00001118  3478 1014                143      MOVE.W ET0, A2          ; movemos el contenido de ET0 a EMEM + M
-0000111C  4EF9 00001126            144      JMP FINAL_Store
-00001122                           145      
-00001122                           146     I1_Store:
-00001122  3478 1016                147      MOVE.W ET1, A2          ; movemos el contenido de ET1 a EMEM + M
-00001126                           148    
-00001126                           149    FINAL_Store:
-00001126  6000 FF02                150      BRA FETCH
-0000112A                           151      
-0000112A                           152  *--------------------------------------------------
-0000112A                           153  ELOIP:                      ; Ti <-- [[Xb]], Xb <-- [Xb] + 1
-0000112A  3A38 1010                154      MOVE.W EIR, D5          ; metemos la instr. en D5
-0000112E  4EB9 00001374            155      JSR CogerB              ; sacamaos el registro B
-00001134  344D                     156      MOVE.W A5, A2           ; guardamos el Rb en A2
-00001136                           157      
-00001136  3A38 1010                158      MOVE.W EIR, D5          ; metemos la inst. en D5
-0000113A  4EB9 0000138E            159      JSR CogerI              ; cogemos I
-00001140  BA7C 0000                160      CMP #0, D5              ; comparamos D5(I) con 0
-00001144  6600 0010                161      BNE I1_LOIP             ; si no son iguales saltamos donde I = 1
-00001148                           162      
-00001148  31D2 1014                163      MOVE.W (A2),ET0         ; T0 <-- [[Rb]]
-0000114C  40C2                     164      MOVE.W SR, D2           ; guardamos los flags despues de la op.
-0000114E  5252                     165      ADD.W #1, (A2)          ; Xb <-- [Xb] + 1   
-00001150  4EF9 0000115E            166      JMP FINAL_LOIP
-00001156                           167      
-00001156                           168     I1_LOIP:
-00001156  31D2 1016                169      MOVE.W (A2),ET1         ; T1 <-- [[Rb]]
-0000115A  40C2                     170      MOVE.W SR, D2           ; guardamos los flags despues de la op.
-0000115C  5252                     171      ADD.W #1, (A2)          ; Xb <-- [Xb] + 1   
-0000115E                           172      
-0000115E                           173   FINAL_LOIP:
-0000115E  4244                     174      CLR.W D4                ; limpiamos D4 por si hay algo, ya que lo 
-00001160  4EB9 00001464            175      JSR FLAGS_NZ            ; necesitaremos D4 para actualizar los flags N y Z
-00001166                           176      
-00001166  6000 FEC2                177      BRA FETCH
-0000116A                           178  
-0000116A                           179  *--------------------------------------------------
-0000116A                           180  ESTIP:                      ; [Xb] <-- [Ti], Xb <-- [Xb] + 1
-0000116A  3A38 1010                181      MOVE.W EIR, D5          ; metemos la instr. en D5
-0000116E  4EB9 00001374            182      JSR CogerB              ; sacamaos el registro B
-00001174  344D                     183      MOVE.W A5, A2           ; guardamos el Rb en A2
-00001176                           184      
-00001176  3A38 1010                185      MOVE.W EIR, D5          ; metemos la inst. en D5
-0000117A  4EB9 0000138E            186      JSR CogerI              ; cogemos I
-00001180  BA7C 0000                187      CMP #0, D5              ; comparamos D5(I) con 0
-00001184  6600 000E                188      BNE I1_STIP             ; si no son iguales saltamos donde I = 1
-00001188                           189      
-00001188  34B8 1014                190      MOVE.W (ET0),(A2)       ; [Xb] <-- [T0]
-0000118C  5252                     191      ADD.W #1, (A2)          ; Xb <-- [Xb] + 1  
-0000118E  4EF9 0000119A            192      JMP FINAL_STIP
-00001194                           193      
-00001194                           194     I1_STIP:
-00001194  34B8 1014                195      MOVE.W (ET0),(A2)       ; [Xb] <-- [T0]
-00001198  5252                     196      ADD.W #1, (A2)          ; Xb <-- [Xb] + 1  
-0000119A                           197      
-0000119A                           198   FINAL_STIP:
-0000119A  4EF8 102A                199      JMP FETCH
-0000119E                           200  
-0000119E                           201  *--------------------------------------------------
-0000119E                           202  EGOI:                       ; PC <-- M
-0000119E                           203  
-0000119E  3A38 1010                204      MOVE.W EIR, D5          ; movemos la instr. a D5
-000011A2  4EB9 000013A2            205      JSR CogerM              ; llamamos a la subr. para coger M
-000011A8  31C5 1012                206      MOVE.W D5, EPC          ; guardamos D5 en el PC del eprograma
-000011AC                           207      
-000011AC  6000 FE7C                208      BRA FETCH
-000011B0                           209                     
-000011B0                           210  *--------------------------------------------------
-000011B0                           211  EGOZ:                       ; si Z=1,  PC <-- M
-000011B0                           212  
-000011B0  3438 1024                213      MOVE.W ESR, D2          ; movemos los eflags a D2
-000011B4  0802 0000                214      BTST.L #0, D2           ; comprobamos si el eflag Z es 1
-000011B8  6700 0010                215      BEQ Z0                  ; si es 0 saltamos al final de la instr.
-000011BC                           216      
-000011BC  3A38 1010                217      MOVE.W EIR, D5          ; movemos la instr. a D5
-000011C0  4EB9 000013A2            218      JSR CogerM              ; llamamos a la subr. para coger M
-000011C6  31C5 1012                219      MOVE.W D5, EPC          ; guardamos D5 en el PC del eprograma
-000011CA                           220  
-000011CA                           221    Z0:
-000011CA  6000 FE5E                222      BRA FETCH    
-000011CE                           223      
-000011CE                           224  *--------------------------------------------------
-000011CE                           225  EGON:                       ; si N=1,  PC <-- M
-000011CE                           226  
-000011CE  3438 1024                227      MOVE.W ESR, D2          ; movemos los eflags a D2
-000011D2  0802 0001                228      BTST.L #1, D2           ; comprobamos si el eflag N es 1
-000011D6  6700 0010                229      BEQ N0                  ; si es 0 saltamos al final de la instr.
-000011DA                           230      
-000011DA  3A38 1010                231      MOVE.W EIR, D5          ; movemos la instr. a D5
-000011DE  4EB9 000013A2            232      JSR CogerM              ; llamamos a la subr. para coger M
-000011E4  31C5 1012                233      MOVE.W D5, EPC          ; guardamos D5 en el PC del eprograma
-000011E8                           234  
-000011E8                           235    N0:
-000011E8  6000 FE40                236      BRA FETCH    
-000011EC                           237      
-000011EC                           238  *--------------------------------------------------
-000011EC                           239  EEXIT:                      ; Detiene la maquina
-000011EC  4EF9 00001554            240      JMP SIMHALT
-000011F2                           241  *--------------------------------------------------
-000011F2                           242  ECOPY:                      ; Rc <-- Rb
-000011F2                           243  
-000011F2  3A38 1010                244      MOVE.W EIR, D5          ; movemos la inst. a D5
-000011F6  4EB9 00001374            245      JSR CogerB              ; cogemos B
-000011FC  344D                     246      MOVE.W A5, A2           ; guardamos B en A2
-000011FE                           247      
-000011FE  3A38 1010                248      MOVE.W EIR, D5          ; movemos de nuevo la inst. a D5,ya que se modificó
-00001202  4EB9 00001382            249      JSR CogerC              ; cogemos C
-00001208  324D                     250      MOVE.W A5, A1           ; guardamos C en A1
-0000120A                           251      
-0000120A  3292                     252      MOVE.W (A2),(A1)        ; copiamos el contenido de A2 dentro de A1
-0000120C                           253      
-0000120C  40C2                     254      MOVE.W SR, D2           ; copiamos los flags a D2
-0000120E  4244                     255      CLR.W D4                ; limpiamos D4 por si hay algo, ya que lo 
-00001210  4EB9 00001464            256      JSR FLAGS_NZ            ; necesitaremos D4 para actualizar los flags N y Z
-00001216                           257      
-00001216  6000 FE12                258      BRA FETCH
-0000121A                           259      
-0000121A                           260  *--------------------------------------------------
-0000121A                           261  EADD:                       ; Rc <-- [Rb] + [Ra]
-0000121A                           262  
-0000121A  3A38 1010                263      MOVE.W EIR, D5          ; movemos la instr. a D5
-0000121E  4EB9 00001366            264      JSR CogerA              ; llamamos a la sub. de usuario para coger el valor
-00001224  324D                     265      MOVE.W A5, A1           ; de A y lo movemos a A1
-00001226                           266      
-00001226  3A38 1010                267      MOVE.W EIR, D5
-0000122A  4EB9 00001374            268      JSR CogerB              ; llamamos a la sub. de usuario para coger el valor
-00001230  344D                     269      MOVE.W A5, A2           ; de B y lo movemos a A2
-00001232                           270      
-00001232  3A38 1010                271      MOVE.W EIR, D5
-00001236  4EB9 00001382            272      JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
-0000123C  364D                     273      MOVE.W A5, A3           ; de C y lo movemos a A3
-0000123E                           274      
-0000123E  4286                     275      CLR.L D6                ; preparamos D6 para poder poner el resultado
-00001240  DC51                     276      ADD.W (A1),D6           ; sumamos el contenido de A1 (A) a D6
-00001242  DC52                     277      ADD.W (A2),D6           ; sumamos el contenido de A2 (B) a D6
-00001244                           278      
-00001244  40C2                     279      MOVE.W SR,D2            ; guardamos los flags del 68k en D2
-00001246  4244                     280      CLR.W D4                
-00001248  4EB9 00001456            281      JSR Flags_CNZ           ; actualizamos los eflags
-0000124E                           282      
-0000124E  3686                     283      MOVE.W D6, (A3)         ; movemos el resultado a Rc
-00001250                           284      
-00001250  6000 FDD8                285      BRA FETCH
-00001254                           286  *--------------------------------------------------    
-00001254                           287  ESUB:                       ; Rc <-- [Rb] - [Ra]
-00001254                           288  
-00001254  3A38 1010                289      MOVE.W EIR, D5          ; movemos la instr. a D5
-00001258  4EB9 00001366            290      JSR CogerA              ; llamamos a la sub. de usuario para coger el valor
-0000125E  324D                     291      MOVE.W A5, A1           ; de A y lo movemos a A1
-00001260                           292      
-00001260  3A38 1010                293      MOVE.W EIR, D5
-00001264  4EB9 00001374            294      JSR CogerB              ; llamamos a la sub. de usuario para coger el valor
-0000126A  344D                     295      MOVE.W A5, A2           ; de B y lo movemos a A2
-0000126C                           296      
-0000126C  3A38 1010                297      MOVE.W EIR, D5
-00001270  4EB9 00001382            298      JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
-00001276  364D                     299      MOVE.W A5, A3           ; de C y lo movemos a A3
-00001278                           300      
-00001278  4286                     301      CLR.L D6                ; preparamos D6 para poder poner el resultado
-0000127A  DC51                     302      ADD.W (A1),D6           ; sumamos el contenido de A1 (A) a D6
-0000127C  4646                     303      NOT.W D6                ; negamos y sumamos 1 a A para hacer una resta
-0000127E  5246                     304      ADDQ.W #1, D6
-00001280  DC52                     305      ADD.W (A2),D6           ; B + (-A)
-00001282                           306  
-00001282  40C2                     307      MOVE.W SR,D2            ; guardamos los flags del 68k en D2
-00001284  4244                     308      CLR.W D4                ; limpiamos D4
-00001286  4EB9 00001456            309      JSR Flags_CNZ           ; actualizamos los eflags
-0000128C                           310      
-0000128C  3686                     311      MOVE.W D6, (A3)         ; movemos el resultado a Rc
-0000128E                           312      
-0000128E  6000 FD9A                313      BRA FETCH
-00001292                           314  *--------------------------------------------------    
-00001292                           315  EAND:                       ; Rc <-- [Rb] and [Ra]
-00001292                           316  
-00001292  3A38 1010                317      MOVE.W EIR, D5          ; movemos la instr. a D5
-00001296  4EB9 00001366            318      JSR CogerA              ; llamamos a la sub. de usuario para coger el valor
-0000129C  324D                     319      MOVE.W A5, A1           ; de A y lo movemos a A1
-0000129E                           320      
-0000129E  3A38 1010                321      MOVE.W EIR, D5
-000012A2  4EB9 00001374            322      JSR CogerB              ; llamamos a la sub. de usuario para coger el valor
-000012A8  344D                     323      MOVE.W A5, A2           ; de B y lo movemos a A2
-000012AA                           324      
-000012AA  3A38 1010                325      MOVE.W EIR, D5
-000012AE  4EB9 00001382            326      JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
-000012B4  364D                     327      MOVE.W A5, A3           ; de C y lo movemos a A3
-000012B6                           328  
-000012B6  3C11                     329      MOVE.W (A1),D6          ; movemos A y B a los registros de dat.
-000012B8  3E12                     330      MOVE.W (A2),D7
-000012BA  CC47                     331      AND.W   D7 ,D6          ; A and B
-000012BC                           332      
-000012BC  40C2                     333      MOVE.W SR,D2            ; guardamos los flags del 68k en D2
-000012BE  4244                     334      CLR.W D4                ; limpiamos D4 
-000012C0  4EB9 00001464            335      JSR Flags_NZ            ; actualizamos los eflags
-000012C6                           336      
-000012C6  3686                     337      MOVE.W D6, (A3)         ; movemos el resultado a Rc
-000012C8                           338      
-000012C8  6000 FD60                339      BRA FETCH
-000012CC                           340  *--------------------------------------------------
-000012CC                           341  ESET:                       ; Rc <-- k (ext. signo)
-000012CC  3A38 1010                342      MOVE.W EIR, D5          ; movemos la instr. a D5
-000012D0  4EB9 00001382            343      JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
-000012D6  364D                     344      MOVE.W A5, A3           ; de C y lo movemos a A3
-000012D8                           345      
-000012D8  3A38 1010                346      MOVE.W EIR, D5          ; movemos la instr. a D5
-000012DC  4EB9 000013AA            347      JSR CogerK              ; cogemos k (dentro se realiza la ext. de signo)
-000012E2  3C05                     348      MOVE.W D5, D6           ; guardamos k en D6
-000012E4                           349      
-000012E4  3686                     350      MOVE.W D6,(A3)          ; guardamos D6 (k) dentro de A3 (C)
-000012E6                           351      
-000012E6  40C2                     352      MOVE.W SR,D2            ; guardamos los flags del 68k en D2
-000012E8  4244                     353      CLR.W D4                ; limpiamos D4 por si hay algo, ya que lo 
-000012EA  4EB9 00001464            354      JSR FLAGS_NZ            ; necesitaremos D4 para actualizar los flags N y Z
-000012F0                           355  
-000012F0  6000 FD38                356      BRA FETCH
-000012F4                           357  
-000012F4                           358  *--------------------------------------------------
-000012F4                           359  EADQ:                       ; Rc <-- [Rc] + k (ext. signo)
-000012F4  3A38 1010                360      MOVE.W EIR, D5          ; movemos la instr. a D5
-000012F8  4EB9 00001382            361      JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
-000012FE  364D                     362      MOVE.W A5, A3           ; de C y lo movemos a A3
-00001300                           363      
-00001300  3A38 1010                364      MOVE.W EIR, D5          ; movemos la instr. a D5
-00001304  4EB9 000013AA            365      JSR CogerK              ; cogemos k (dentro se realiza la ext. de signo)
-0000130A  3C05                     366      MOVE.W D5, D6           ; guardamos k en D6
-0000130C                           367      
-0000130C  DD53                     368      ADD.W D6,(A3)           ; sumamos D6 (k) con A3(C) y lo guardamos en A3(C)
-0000130E                           369      
-0000130E  40C2                     370      MOVE.W SR,D2            ; guardamos los flags del 68k en D2
-00001310  4244                     371      CLR.W D4                ; limpiamos D4 por si hay algo, ya que lo 
-00001312  4EB9 00001456            372      JSR FLAGS_CNZ           ; necesitaremos D4 para actualizar todos los eflags
-00001318                           373  
-00001318  6000 FD10                374      BRA FETCH
-0000131C                           375  *--------------------------------------------------
-0000131C                           376  ELSH:                       ; si n=0 => Rb <-- [Rb] left shift p
-0000131C                           377                              ; si n=1 => Rb <-- [Rb] right shift p
-0000131C  3A38 1010                378      MOVE.W EIR, D5          ; movemos la inst. a D5
-00001320  4EB9 00001374            379      JSR CogerB              ; cogemos el registro B
-00001326  344D                     380      MOVE.W A5, A2           ; guardamos el Rb en A2
-00001328  3E12                     381      MOVE.W (A2),D7          ; movemos el contenido de A2(B) a un registro
-0000132A                           382                              ; temporal
-0000132A                           383      
-0000132A  3A38 1010                384      MOVE.W EIR, D5          ; movemos la inst. a D5
-0000132E  4EB9 0000139A            385      JSR CogerP              ; cogemos P
-00001334  3C05                     386      MOVE.W D5, D6           ; guardamos D5(P) en D6
-00001336                           387  
-00001336  3A38 1010                388      MOVE.W EIR, D5          ; movemos la intsrucción a D5
-0000133A  4EB9 00001394            389      JSR CogerN              ; cogemos el valor de N
-00001340  BA7C 0000                390      CMP #0, D5              ; comparamos 0 con N
-00001344  6600 000E                391      BNE RShift              ; si N es 1 saltamos a right shift
-00001348                           392      
-00001348  ED6F                     393      LSL.W D6 , D7           ; n=0, por tanto hacemos un LSL con desp. D6(P)
-0000134A  40C2                     394      MOVE.W SR, D2           ; guardamos los flags después de la operación
-0000134C  3447                     395      MOVE.W D7, A2           ; guardamos el resultado en A2(B)
-0000134E  4EF9 0000135A            396      JMP FINAL_LSH           ; saltamos al final
-00001354                           397      
-00001354                           398     RShift:
-00001354  EC6F                     399      LSR.W D6, D7            ; n=1, por tanto hacemos un LSR con desp. D6(P)
-00001356  40C2                     400      MOVE.W SR, D2           ; guardamos los flags 
-00001358  3447                     401      MOVE.W D7, A2           ; guardamos el resultado en A2(B)
-0000135A                           402      
-0000135A                           403   FINAL_LSH:
-0000135A  4244                     404      CLR.W D4                ; limpiamos D4 porque lo utilizamos para actualizar
-0000135C  4EB9 00001456            405      JSR FLAGS_CNZ           ; los flags CNZ
-00001362                           406      
-00001362  6000 FCC6                407      BRA FETCH
-00001366                           408      
-00001366                           409  *--------------------------------------------------
-00001366                           410      ;--- FEXEC: FIN EJECUCION
-00001366                           411      
-00001366                           412      
-00001366                           413  
-00001366                           414      ;--- ISUBR: INICIO SUBRUTINAS
-00001366                           415          ;*** Aqui debeis incluir las subrutinas que necesite vuestra solucion
-00001366                           416          ;*** SALVO DECOD, que va en la siguiente seccion
-00001366                           417  
-00001366                           418              ; ESCRIBID VUESTRO CODIGO AQUI
-00001366                           419              
-00001366                           420  CogerA:
-00001366  E08D                     421      LSR.L #8,D5             ; movemos D5 8 posiciones a la derecha
-00001368  CA7C 0007                422      AND.W #$0007,D5         ; con una máscara, cogemos el valor de A (aaa)
-0000136C                           423      
-0000136C  4EB9 000013B4            424      JSR REGISTROS           ; miramos a qué registro se corresponde
-00001372                           425      
-00001372  4E75                     426      RTS
-00001374                           427      
-00001374                           428      
-00001374                           429  CogerB:
-00001374  E88D                     430      LSR.L #4,D5             ; movemos D5 4 posiciones a la derecha
-00001376  CA7C 0007                431      AND.W #$0007,D5         ; con una máscara, cogemos el valor de B (bbb)
-0000137A                           432      
-0000137A  4EB9 000013B4            433      JSR REGISTROS           ; miramos a qué registro se corresponde
-00001380                           434      
-00001380  4E75                     435      RTS
-00001382                           436  
-00001382                           437  
-00001382                           438  CogerC:
-00001382  CA7C 0007                439      AND.W #$0007,D5         ; con una máscara, cogemos el valor de C (ccc)
-00001386                           440  
-00001386  4EB9 000013B4            441      JSR REGISTROS           ; miramos a qué registro se corresponde
-0000138C                           442      
-0000138C  4E75                     443      RTS
-0000138E                           444     
-0000138E                           445  CogerI:
-0000138E  CA7C 0001                446      AND.W #0001,D5          ; con una máscara, cogemos el valor de I
-00001392                           447      
-00001392  4E75                     448      RTS
-00001394                           449      
-00001394                           450  CogerN:
-00001394  CA7C 0001                451      AND.W #0001,D5          ; con una máscara, cogemos el valor de N
-00001398                           452      
-00001398  4E75                     453      RTS
-0000139A                           454      
-0000139A                           455  CogerP:
-0000139A  E08D                     456      LSR.L #8,D5             ; movemos D5 8 posiciones a la derecha
-0000139C  CA7C 0007                457      AND.W #0007,D5          ; con una máscara, cogemos el valor de P (ppp)
-000013A0                           458      
-000013A0  4E75                     459      RTS
-000013A2                           460      
-000013A2                           461  CogerM:
-000013A2  E28D                     462      LSR.L #1,D5             ; movemos D5 4 posiciones a la derecha
-000013A4  CA7C 00FF                463      AND.W #$00FF,D5         ; con una máscara, cogemos el valor de M (mmmmmmmm)
-000013A8                           464      
-000013A8  4E75                     465      RTS
-000013AA                           466     
-000013AA                           467  CogerK:
-000013AA  E68D                     468      LSR.L #3,D5             ; movemos D5 3 posiciones a la derecha
-000013AC  CA3C 00FF                469      AND.B #$00FF,D5         ; con una máscara, cogemos el valor de K (kkkkkkkk)
-000013B0  4885                     470      EXT.W D5                ; hacemos una extensión de signo (byte -> word)
-000013B2                           471      
-000013B2  4E75                     472      RTS
-000013B4                           473  
-000013B4                           474  *--------------------------------------
-000013B4                           475  
-000013B4                           476  REGISTROS:
-000013B4  0805 0002                477      BTST.L #2,D5            ; miramos el tercer bit del registro
-000013B8  6600 0026                478      BNE REGISTROS_1XX       ; si no es 0, saltamos para mirar el registro 1XX
-000013BC                           479      
-000013BC                           480     ;0XX
-000013BC  0805 0001                481      BTST.L #1,D5            ; miramos el segundo bit del registro
-000013C0  6600 0010                482      BNE REGISTROS_01X       ; si no es 0, saltamos para mirar el registro 01X
-000013C4                           483      
-000013C4                           484          ;00X
-000013C4  0805 0000                485           BTST.L #0,D5       ; miramos el primer bit del registro
-000013C8  6700 003A                486           BEQ REGISTRO_T0    ; si es 0, el registro es B0
-000013CC  4EF9 0000140E            487           JMP REGISTRO_T1    ; si es 0, el registro es B1
-000013D2                           488      
-000013D2                           489          REGISTROS_01X:
-000013D2  0805 0000                490           BTST.L #0,D5       ; miramos el primer bit del registro
-000013D6  6700 0040                491           BEQ REGISTRO_X2    ; si es 0, el registro es R2
-000013DA  4EF9 00001422            492           JMP REGISTRO_X3    ; si es 0, el registro es R3
-000013E0                           493      
-000013E0                           494     REGISTROS_1XX:
-000013E0  0805 0001                495      BTST.L #1,D5            ; miramos el segundo bit del registro
-000013E4  6600 0010                496      BNE REGISTROS_11X       ; si no es 0, saltamos para mirar el registro 11X
-000013E8                           497      
-000013E8                           498          ;10X
-000013E8  0805 0000                499           BTST.L #0,D5       ; miramos el primer bit del registro
-000013EC  6700 003E                500           BEQ REGISTRO_X4    ; si es 0, el registro es R4
-000013F0  4EF9 00001436            501           JMP REGISTRO_X5    ; si es 0, el registro es R5
-000013F6                           502      
-000013F6                           503          REGISTROS_11X:
-000013F6  0805 0000                504           BTST.L #0,D5       ; miramos el primer bit del registro
-000013FA  6700 0044                505           BEQ REGISTRO_X6    ; si es 0, el registro es T6
-000013FE  4EF9 0000144A            506           JMP REGISTRO_X7    ; si es 0, el registro es T7
-00001404                           507      
-00001404                           508  
-00001404                           509    ; A partir de aquí guardamos las direcciones y salimos de la subrutina 
-00001404                           510     REGISTRO_T0:
-00001404  4BF8 1014                511      LEA.L ET0,A5            ; guardamos el contenido de ET0 en A5
-00001408  4EF9 00001454            512      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
-0000140E                           513      
-0000140E                           514     REGISTRO_T1:
-0000140E  4BF8 1016                515      LEA.L ET1,A5            ; guardamos el contenido de ET1 en A5
-00001412  4EF9 00001454            516      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
-00001418                           517      
-00001418                           518     REGISTRO_X2:
-00001418  4BF8 1018                519      LEA.L EX2,A5            ; guardamos el contenido de EX2 en A5
-0000141C  4EF9 00001454            520      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
-00001422                           521      
-00001422                           522     REGISTRO_X3:
-00001422  4BF8 101A                523      LEA.L EX3,A5            ; guardamos el contenido de EX3 en A5
-00001426  4EF9 00001454            524      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
-0000142C                           525      
-0000142C                           526     REGISTRO_X4:
-0000142C  4BF8 101C                527      LEA.L EX4,A5            ; guardamos el contenido de EX4 en A5
-00001430  4EF9 00001454            528      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
-00001436                           529      
-00001436                           530     REGISTRO_X5:
-00001436  4BF8 101E                531      LEA.L EX5,A5            ; guardamos el contenido de EX5 en A5
-0000143A  4EF9 00001454            532      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
-00001440                           533      
-00001440                           534     REGISTRO_X6:
-00001440  4BF8 1020                535      LEA.L EX6,A5            ; guardamos el contenido de EX6 en A5
-00001444  4EF9 00001454            536      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
-0000144A                           537      
-0000144A                           538     REGISTRO_X7:
-0000144A  4BF8 1022                539      LEA.L EX7,A5            ; guardamos el contenido de EX7 en A5
-0000144E  4EF9 00001454            540      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
-00001454                           541      
-00001454                           542     FIN_REGISTROS: 
-00001454  4E75                     543      RTS
-00001456                           544  *--------------------------------------
-00001456                           545  ; Flags 68k = NZVC, FLAGS HAL9000 = 0CNZ  
-00001456                           546  
-00001456                           547  FLAGS_CNZ:
-00001456  3602                     548      MOVE D2,D3              ; copiamos los flags para poder manipularlos
-00001458  0803 0000                549      BTST.L #0,D3            ; miramos C
-0000145C  6700 0006                550      BEQ FLAGS_NZ            ; si C es 0, saltamos a mirar el flag Z
-00001460                           551      
-00001460  08C4 0002                552      BSET.L #2,D4              ; si no es 0, pondremos a 1 el valor de C en D4
-00001464                           553      
-00001464                           554  *--------------------------------------    
-00001464                           555  FLAGS_NZ:
-00001464  3602                     556      MOVE.W D2,D3            ; copiamos los flags para poder manipularlos
-00001466  0803 0003                557      BTST.L #3,D3            ; miramos N
-0000146A  6700 0006                558      BEQ FLAG_Z              ; si N es 0, saltamos a mirar el siguiente flag
-0000146E                           559      
-0000146E  08C4 0001                560      BSET.L #1,D4            ; si no es 0, pondremos a 1 el valor de N en D4
-00001472                           561      
-00001472                           562     FLAG_Z:
-00001472  3602                     563      MOVE.W D2,D3            ; copiamos los flags para poder manipularlos
-00001474  0803 0002                564      BTST.L #2,D3            ; miramos Z
-00001478  6700 0006                565      BEQ FINAL_FLAGS         ; si Z es 0, saltamos al final de los flags
-0000147C                           566      
-0000147C  08C4 0000                567      BSET.L #0,D4            ; si no es 0, pondremos a 1 el valor de Z en D4
-00001480                           568      
-00001480                           569     FINAL_FLAGS:
-00001480  31C4 1024                570      MOVE.W D4,ESR           ; movemos D4 (flags finales) a ESR, los eflags
-00001484  4E75                     571      RTS
-00001486                           572          
-00001486                           573          
-00001486                           574      ;--- FSUBR: FIN SUBRUTINAS
-00001486                           575      
-00001486                           576      
-00001486                           577  
-00001486                           578      ;--- IDECOD: INICIO DECOD
-00001486                           579          ;*** Tras la etiqueta DECOD, debeis implementar la subrutina de 
-00001486                           580          ;*** decodificacion, que debera ser de libreria, siguiendo la interfaz
-00001486                           581          ;*** especificada en el enunciado
-00001486                           582  DECOD:
-00001486                           583              ; ESCRIBID VUESTRO CODIGO AQUI
-00001486                           584              
-00001486  3F00                     585      MOVE.W D0,-(A7)         ; guardamos D0 en la pila
-00001488  3F01                     586      MOVE.W D1,-(A7)         ; guardamos D1 en la pila
-0000148A  302F 0008                587      MOVE.W 8(A7),D0         ; la instrucción que hemos guardado la pasamos a D0
-0000148E                           588  
-0000148E  323C 0000                589      MOVE.W #0, D1           ; D1 contiene el id de la instrucción
-00001492  0800 000F                590      BTST.L #15, D0          ; miramos el bit 16º de la instr.
-00001496  6600 0050                591      BNE DECOD_1XXX          ; si no es 0, saltamos a para la instr. 1XXX
-0000149A                           592      
-0000149A                           593      ;0XXX
-0000149A  0800 000E                594      BTST.L #14, D0          ; miramos el bit 15º de la instr.
-0000149E  6600 0028                595      BNE DECOD_01XX          ; si no es 0, saltamos a para la instr. 01XX
-000014A2                           596  
-000014A2                           597          ;00XX
-000014A2  0800 000D                598          BTST.L #13, D0      ; miramos el bit 14º de la instr.
-000014A6  6600 0010                599          BNE DECOD_001X      ; si no es 0, saltamos a para la instr. 001X
-000014AA                           600          
-000014AA                           601              ;000X
-000014AA  0800 000C                602              BTST.L #12, D0  ; miramos el bit 13º de la instr.
-000014AE  6600 0098                603              BNE FINAL_AUX   ; si no es 0, saltamos a final aux para sumar 1
-000014B2  4EF9 0000154A            604              JMP FINAL       ; si es 0, saltamos al final
-000014B8                           605              
-000014B8                           606            DECOD_001X:
-000014B8  5441                     607              ADDQ.W #2, D1   ; sumamos 2 al id de la instr.
-000014BA  0800 000C                608              BTST.L #12, D0  ; miramos el bit 13º de la instr.  
-000014BE  6600 0088                609              BNE FINAL_AUX   ; si no es 0, saltamos a final aux para sumar 1
-000014C2  4EF9 0000154A            610              JMP FINAL       ; si es 0, saltamos al final
-000014C8                           611           
-000014C8                           612        DECOD_01XX:
-000014C8  5841                     613          ADDQ.W #4, D1       ; sumamos 4 al id de la instr.
-000014CA  0800 000D                614          BTST.L #13, D0      ; miramos el bit 14º de la instr.
-000014CE  6600 0010                615          BNE DECOD_0110      ; si no es 0, saltamos a la única otra 
-000014D2                           616                              ; posibilidad que es 0110
-000014D2                           617             ;010X
-000014D2  0800 000C                618             BTST.L #12, D0   ; miramos el bit 13º de la instr.
-000014D6  6600 0070                619             BNE FINAL_AUX    ; si no es 0, saltamos a final aux para sumar 1
-000014DA  4EF9 0000154A            620             JMP FINAL        ; si es 0, saltamos directamente al final
-000014E0                           621        
-000014E0                           622        DECOD_0110:
-000014E0  5C41                     623          ADDQ.W #6, D1       ; sumamos 6 directamente porque solo hay 1 instr.
-000014E2  4EF9 0000154A            624          JMP FINAL           ; que empiece por 011
-000014E8                           625          
-000014E8                           626    DECOD_1XXX:
-000014E8  5E41                     627      ADDQ.W #7, D1           ; id = 7
-000014EA  0800 000E                628      BTST.L #14, D0          ; miramos el bit 15º de la instr.
-000014EE  6600 0008                629      BNE DECOD_11XXX         ; si no es 0, saltamos a la instr. 10XXX
-000014F2  4EF9 0000154A            630      JMP FINAL               ; como la única instr. con 10 sumamos el id
-000014F8                           631                              ; y saltamos directamente al final
-000014F8                           632          
-000014F8                           633        
-000014F8                           634    DECOD_11XXX:
-000014F8  0800 000D                635      BTST.L #13, D0          ; miramos el bit 14º 
-000014FC  6600 002A                636      BNE DECOD_111XX         ; si no es 0, saltamos a 111XX
-00001500                           637      
-00001500                           638          ;110XX
-00001500  0800 000C                639          BTST.L #12, D0      ; miramos el bit 13º
-00001504  6600 0012                640          BNE DECOD_1101X
-00001508                           641          
-00001508                           642              ;1100X
-00001508  5241                     643              ADDQ.W #1, D1   ; id = 8
-0000150A  0800 000B                644              BTST.L #11, D0  ; miramos el bit 12º 
-0000150E  6600 0038                645              BNE FINAL_AUX   ; si es 1, saltamos al final aux para sumar 1
-00001512  4EF9 0000154A            646              JMP FINAL       ; si es 0, saltamos directamente al final
-00001518                           647  
-00001518                           648  
-00001518                           649             DECOD_1101X:
-00001518  5641                     650              ADDQ.W #3, D1   ; id = 10
-0000151A  0800 000B                651              BTST.L #11, D0  ; miramos el bit 12º
-0000151E  6600 0028                652              BNE FINAL_AUX   ; si es 1, saltamos al final aux para sumar 1
-00001522  4EF9 0000154A            653              JMP FINAL       ; si es 0, saltamos directamente al final
-00001528                           654        
-00001528                           655        DECOD_111XX:
-00001528  5A41                     656          ADDQ.W #5, D1       ; id = 12
-0000152A  0800 000C                657          BTST.L #12, D0      ; miramos el bit 13º
-0000152E  6600 0010                658          BNE DECOD_11110     ; si es 1, saltamos a 11110
-00001532                           659          
-00001532                           660              ;11100
-00001532  0800 000B                661              BTST.L #11, D0  ; miramos el bit 12º
-00001536  6600 0010                662              BNE FINAL_AUX   ; si es 1, sumamos 1 al id
-0000153A  4EF9 0000154A            663              JMP FINAL       ; si es 0, saltamos al final
-00001540                           664              
-00001540                           665            DECOD_11110:
-00001540  5441                     666              ADDQ.W #2, D1   ; id = 14
-00001542  4EF9 0000154A            667              JMP FINAL
-00001548                           668  
-00001548                           669     FINAL_AUX:
-00001548  5241                     670      ADDQ.W #1,D1            ; sumamos 1 al id
-0000154A                           671      
-0000154A                           672     FINAL: 
-0000154A  3F41 000A                673      MOVE.W D1,10(A7)        ; guardamos el id en la pila
-0000154E  321F                     674      MOVE.W (A7)+,D1         ; sacamos D1 de la pila
-00001550  301F                     675      MOVE.W (A7)+,D0         ; sacamos D0 de la pila
-00001552                           676      
-00001552  4E75                     677      RTS
-00001554                           678  
-00001554                           679  
-00001554                           680      ;--- FDECOD: FIN DECOD
-00001554                           681      
-00001554                           682  SIMHALT:
-00001554  FFFF FFFF                683      SIMHALT                 ; detiene la máquina
-00001558                           684      END    START
+00001000= E082 E09B E0B4 E...       14  EMEM:   DC.W $E082,$E09B,$E0B4,$E01D,$2020,$C006,$2031,$C017,$F160
+00001012= F170 CE70 3040 E...       15          DC.W $F170,$CE70,$3040,$EFFD,$501E,$4008,$8000,$0001
+00001022= 0001 0001 0001 0...       16          DC.W $0001,$0001,$0001,$0001,$0001,$0000,$0000,$0000
+00001032= 0000                      17  EIR:    DC.W 0 ;eregistro de instruccion
+00001034= 0000                      18  EPC:    DC.W 0 ;econtador de programa
+00001036= 0000                      19  ET0:    DC.W 0 ;eregistro T0
+00001038= 0000                      20  ET1:    DC.W 0 ;eregistro T1
+0000103A= 0000                      21  EX2:    DC.W 0 ;eregistro X2
+0000103C= 0000                      22  EX3:    DC.W 0 ;eregistro X3
+0000103E= 0000                      23  EX4:    DC.W 0 ;eregistro X4
+00001040= 0000                      24  EX5:    DC.W 0 ;eregistro X5
+00001042= 0000                      25  EX6:    DC.W 0 ;eregistro X6
+00001044= 0000                      26  EX7:    DC.W 0 ;eregistro X7
+00001046= 0000                      27  ESR:    DC.W 0 ;eregistro de estado (00000000 00000CNZ)
+00001048                            28  START:
+00001048  4278 1034                 29      CLR.W EPC
+0000104C                            30  
+0000104C                            31  FETCH:
+0000104C                            32      ;--- IFETCH: INICIO FETCH
+0000104C                            33          ;*** En esta seccion debeis introducir el codigo necesario para cargar
+0000104C                            34          ;*** en el EIR la siguiente instruccion a ejecutar, indicada por el EPC,
+0000104C                            35          ;*** y dejar listo el EPC para que apunte a la siguiente instruccion
+0000104C                            36      
+0000104C                            37              ; ESCRIBID VUESTRO CODIGO AQUI      
+0000104C                            38          
+0000104C  3038 1034                 39      MOVE.W EPC,D0           ; movemos el contador a D0
+00001050  C0FC 0002                 40      MULU.W #2,D0            ; multiplicamos x2 D0
+00001054                            41      
+00001054  41F8 1000                 42      LEA.L EMEM,A0           ; cogemos la dirección de la memoria
+00001058  D0C0                      43      ADD.W D0,A0             ; sumamos D0 (PC) a A0 para tener la dirección de
+0000105A                            44                                  ; la instrucción a ejecutar
+0000105A                            45      
+0000105A  5278 1034                 46      ADD.W #1,EPC            ; sumamos 1 al EPC para ya apuntar a la siguiente
+0000105E  31D0 1032                 47      MOVE.W (A0),EIR         ; movemos la instrucción al eregistro
+00001062                            48                                  ; de instrucción
+00001062                            49      
+00001062                            50          
+00001062                            51      ;--- FFETCH: FIN FETCH
+00001062                            52      
+00001062                            53      
+00001062                            54      
+00001062                            55      ;--- IBRDECOD: INICIO SALTO A DECOD
+00001062                            56          ;*** En esta seccion debeis preparar la pila para llamar a la subrutina
+00001062                            57          ;*** DECOD, llamar a la subrutina, y vaciar la pila correctamente,
+00001062                            58          ;*** almacenando el resultado de la decodificacion en D1
+00001062                            59  
+00001062                            60              ; ESCRIBID VUESTRO CODIGO AQUI          
+00001062                            61  IBREDECOD:
+00001062  3F3C 0000                 62      MOVE.W #0,-(A7)         ; preparamos la pila
+00001066  3F38 1032                 63      MOVE.W (EIR),-(A7)      ; metemos la instrucción en la pila
+0000106A                            64      
+0000106A  4EB9 000014AC             65      JSR DECOD               ; saltamos a la subrutina de librería
+00001070                            66                                  ; de decodificación
+00001070                            67                                  
+00001070  544F                      68      ADDQ.W #2,A7            ; sumamos 2 a A7
+00001072  321F                      69      MOVE.W (A7)+,D1         ; en D1 tenemos la instrucción a ejecutar
+00001074                            70  
+00001074                            71          
+00001074                            72      ;--- FBRDECOD: FIN SALTO A DECOD
+00001074                            73      
+00001074                            74      
+00001074                            75      
+00001074                            76      ;--- IBREXEC: INICIO SALTO A FASE DE EJECUCION
+00001074                            77          ;*** Esta seccion se usa para saltar a la fase de ejecucion
+00001074                            78          ;*** NO HACE FALTA MODIFICARLA
+00001074  C2FC 0006                 79      MULU #6,D1
+00001078  2241                      80      MOVEA.L D1,A1
+0000107A  4EE9 107E                 81      JMP JMPLIST(A1)
+0000107E                            82  JMPLIST:
+0000107E  4EF9 000010D8             83      JMP ELOA
+00001084  4EF9 0000111C             84      JMP ESTO
+0000108A  4EF9 00001150             85      JMP ELOIP
+00001090  4EF9 00001190             86      JMP ESTIP
+00001096  4EF9 000011C4             87      JMP EGOI
+0000109C  4EF9 000011D6             88      JMP EGOZ
+000010A2  4EF9 000011F4             89      JMP EGON
+000010A8  4EF9 00001212             90      JMP EEXIT
+000010AE  4EF9 00001218             91      JMP ECOPY
+000010B4  4EF9 00001240             92      JMP EADD
+000010BA  4EF9 0000127A             93      JMP ESUB
+000010C0  4EF9 000012B8             94      JMP EAND
+000010C6  4EF9 000012F2             95      JMP ESET
+000010CC  4EF9 0000131A             96      JMP EADQ
+000010D2  4EF9 00001342             97      JMP ELSH
+000010D8                            98      ;--- FBREXEC: FIN SALTO A FASE DE EJECUCION
+000010D8                            99      
+000010D8                           100      
+000010D8                           101      
+000010D8                           102      ;--- IEXEC: INICIO EJECUCION
+000010D8                           103          ;*** En esta seccion debeis implementar la ejecucion de cada einstr.
+000010D8                           104      
+000010D8                           105      ; ESCRIBID EN CADA ETIQUETA LA FASE DE EJECUCION DE CADA INSTRUCCION
+000010D8                           106  ELOA:                       ; Ti <-- [M]
+000010D8  3A38 1032                107      MOVE.W EIR, D5          ; metemos la instr. en D5
+000010DC  4EB9 000013C8            108      JSR CogerM              ; sacamaos el valor de M
+000010E2  CAFC 0002                109      MULU.W #2, D5
+000010E6  D7C5                     110      ADDA.L D5, A3          ; guardamos el valor de M en D6
+000010E8                           111      
+000010E8  3C2B 1000                112      MOVE.W EMEM(A3),D6     ; sumamos la dirección de EMemoria + M y la 
+000010EC                           113                              ; y la guardamos en A2
+000010EC  3A38 1032                114      MOVE.W EIR, D5          ; movemos la inst. a D5, ya que hemos modificado D5
+000010F0  4EB9 000013B4            115      JSR CogerI              ; sacamos el valor de I
+000010F6  BA7C 0000                116      CMP #0, D5              ; comparamos I con 0              
+000010FA  6600 000E                117      BNE I1_Load             ; si no son iguales significa que I es 1, por tanto,
+000010FE                           118                              ; saltamos al caso donde I es 1
+000010FE  31C6 1036                119      MOVE.W D6,ET0         ; cuando I es 0, guardamos el contenido de Emem + M
+00001102                           120                              ; en ET0
+00001102  40C2                     121      MOVE.W SR, D2           ; movemos los flags a D2
+00001104  4EF9 00001110            122      JMP FINAL_Load          ; saltamos al final del ELoad    
+0000110A                           123     
+0000110A                           124     I1_Load:
+0000110A  31C6 1038                125      MOVE.W D6,ET1
+0000110E  40C2                     126      MOVE.W SR, D2           ; movemos los flags a D2
+00001110                           127      
+00001110                           128   FINAL_Load:
+00001110  4244                     129      CLR.W D4                ; limpiamos el registro D4, para modificar los flags
+00001112  4EB9 0000148A            130      JSR FLAGS_NZ
+00001118  6000 FF32                131      BRA FETCH            
+0000111C                           132  *--------------------------------------------------
+0000111C                           133  ESTO:                       ; M <-- [Ti]
+0000111C  3A38 1032                134      MOVE.W EIR, D5          ; metemos la instr. en D5
+00001120  4EB9 000013C8            135      JSR CogerM              ; sacamaos el valor de M
+00001126  3645                     136      MOVEA.W D5, A3           ; guardamos el valor de M en D6   
+00001128                           137      
+00001128  346B 1000                138      MOVEA.W EMEM(A3),A2     ; A2 <-- EMEM + M (direcciones de memoria)
+0000112C                           139   
+0000112C  3A38 1032                140      MOVE.W EIR, D5          ; metemos la instr. en D5
+00001130  4EB9 000013B4            141      JSR CogerI
+00001136  BA7C 0000                142      CMP #0, D5              ; si i = 1 saltamos al caso de ET1
+0000113A  6600 000C                143      BNE I1_Store            
+0000113E                           144      
+0000113E  3478 1036                145      MOVE.W ET0, A2          ; movemos el contenido de ET0 a EMEM + M
+00001142  4EF9 0000114C            146      JMP FINAL_Store
+00001148                           147      
+00001148                           148     I1_Store:
+00001148  3478 1038                149      MOVE.W ET1, A2          ; movemos el contenido de ET1 a EMEM + M
+0000114C                           150    
+0000114C                           151    FINAL_Store:
+0000114C  6000 FEFE                152      BRA FETCH
+00001150                           153      
+00001150                           154  *--------------------------------------------------
+00001150                           155  ELOIP:                      ; Ti <-- [[Xb]], Xb <-- [Xb] + 1
+00001150  3A38 1032                156      MOVE.W EIR, D5          ; metemos la instr. en D5
+00001154  4EB9 0000139A            157      JSR CogerB              ; sacamaos el registro B
+0000115A  344D                     158      MOVE.W A5, A2           ; guardamos el Rb en A2
+0000115C                           159      
+0000115C  3A38 1032                160      MOVE.W EIR, D5          ; metemos la inst. en D5
+00001160  4EB9 000013B4            161      JSR CogerI              ; cogemos I
+00001166  BA7C 0000                162      CMP #0, D5              ; comparamos D5(I) con 0
+0000116A  6600 0010                163      BNE I1_LOIP             ; si no son iguales saltamos donde I = 1
+0000116E                           164      
+0000116E  31D2 1036                165      MOVE.W (A2),ET0         ; T0 <-- [[Rb]]
+00001172  40C2                     166      MOVE.W SR, D2           ; guardamos los flags despues de la op.
+00001174  5252                     167      ADD.W #1, (A2)          ; Xb <-- [Xb] + 1   
+00001176  4EF9 00001184            168      JMP FINAL_LOIP
+0000117C                           169      
+0000117C                           170     I1_LOIP:
+0000117C  31D2 1038                171      MOVE.W (A2),ET1         ; T1 <-- [[Rb]]
+00001180  40C2                     172      MOVE.W SR, D2           ; guardamos los flags despues de la op.
+00001182  5252                     173      ADD.W #1, (A2)          ; Xb <-- [Xb] + 1   
+00001184                           174      
+00001184                           175   FINAL_LOIP:
+00001184  4244                     176      CLR.W D4                ; limpiamos D4 por si hay algo, ya que lo 
+00001186  4EB9 0000148A            177      JSR FLAGS_NZ            ; necesitaremos D4 para actualizar los flags N y Z
+0000118C                           178      
+0000118C  6000 FEBE                179      BRA FETCH
+00001190                           180  
+00001190                           181  *--------------------------------------------------
+00001190                           182  ESTIP:                      ; [Xb] <-- [Ti], Xb <-- [Xb] + 1
+00001190  3A38 1032                183      MOVE.W EIR, D5          ; metemos la instr. en D5
+00001194  4EB9 0000139A            184      JSR CogerB              ; sacamaos el registro B
+0000119A  344D                     185      MOVE.W A5, A2           ; guardamos el Rb en A2
+0000119C                           186      
+0000119C  3A38 1032                187      MOVE.W EIR, D5          ; metemos la inst. en D5
+000011A0  4EB9 000013B4            188      JSR CogerI              ; cogemos I
+000011A6  BA7C 0000                189      CMP #0, D5              ; comparamos D5(I) con 0
+000011AA  6600 000E                190      BNE I1_STIP             ; si no son iguales saltamos donde I = 1
+000011AE                           191      
+000011AE  34B8 1036                192      MOVE.W (ET0),(A2)       ; [Xb] <-- [T0]
+000011B2  5252                     193      ADD.W #1, (A2)          ; Xb <-- [Xb] + 1  
+000011B4  4EF9 000011C0            194      JMP FINAL_STIP
+000011BA                           195      
+000011BA                           196     I1_STIP:
+000011BA  34B8 1036                197      MOVE.W (ET0),(A2)       ; [Xb] <-- [T0]
+000011BE  5252                     198      ADD.W #1, (A2)          ; Xb <-- [Xb] + 1  
+000011C0                           199      
+000011C0                           200   FINAL_STIP:
+000011C0  4EF8 104C                201      JMP FETCH
+000011C4                           202  
+000011C4                           203  *--------------------------------------------------
+000011C4                           204  EGOI:                       ; PC <-- M
+000011C4                           205  
+000011C4  3A38 1032                206      MOVE.W EIR, D5          ; movemos la instr. a D5
+000011C8  4EB9 000013C8            207      JSR CogerM              ; llamamos a la subr. para coger M
+000011CE  31C5 1034                208      MOVE.W D5, EPC          ; guardamos D5 en el PC del eprograma
+000011D2                           209      
+000011D2  6000 FE78                210      BRA FETCH
+000011D6                           211                     
+000011D6                           212  *--------------------------------------------------
+000011D6                           213  EGOZ:                       ; si Z=1,  PC <-- M
+000011D6                           214  
+000011D6  3438 1046                215      MOVE.W ESR, D2          ; movemos los eflags a D2
+000011DA  0802 0000                216      BTST.L #0, D2           ; comprobamos si el eflag Z es 1
+000011DE  6700 0010                217      BEQ Z0                  ; si es 0 saltamos al final de la instr.
+000011E2                           218      
+000011E2  3A38 1032                219      MOVE.W EIR, D5          ; movemos la instr. a D5
+000011E6  4EB9 000013C8            220      JSR CogerM              ; llamamos a la subr. para coger M
+000011EC  31C5 1034                221      MOVE.W D5, EPC          ; guardamos D5 en el PC del eprograma
+000011F0                           222  
+000011F0                           223    Z0:
+000011F0  6000 FE5A                224      BRA FETCH    
+000011F4                           225      
+000011F4                           226  *--------------------------------------------------
+000011F4                           227  EGON:                       ; si N=1,  PC <-- M
+000011F4                           228  
+000011F4  3438 1046                229      MOVE.W ESR, D2          ; movemos los eflags a D2
+000011F8  0802 0001                230      BTST.L #1, D2           ; comprobamos si el eflag N es 1
+000011FC  6700 0010                231      BEQ N0                  ; si es 0 saltamos al final de la instr.
+00001200                           232      
+00001200  3A38 1032                233      MOVE.W EIR, D5          ; movemos la instr. a D5
+00001204  4EB9 000013C8            234      JSR CogerM              ; llamamos a la subr. para coger M
+0000120A  31C5 1034                235      MOVE.W D5, EPC          ; guardamos D5 en el PC del eprograma
+0000120E                           236  
+0000120E                           237    N0:
+0000120E  6000 FE3C                238      BRA FETCH    
+00001212                           239      
+00001212                           240  *--------------------------------------------------
+00001212                           241  EEXIT:                      ; Detiene la maquina
+00001212  4EF9 0000157A            242      JMP SIMHALT
+00001218                           243  *--------------------------------------------------
+00001218                           244  ECOPY:                      ; Rc <-- Rb
+00001218                           245  
+00001218  3A38 1032                246      MOVE.W EIR, D5          ; movemos la inst. a D5
+0000121C  4EB9 0000139A            247      JSR CogerB              ; cogemos B
+00001222  344D                     248      MOVE.W A5, A2           ; guardamos B en A2
+00001224                           249      
+00001224  3A38 1032                250      MOVE.W EIR, D5          ; movemos de nuevo la inst. a D5,ya que se modificó
+00001228  4EB9 000013A8            251      JSR CogerC              ; cogemos C
+0000122E  324D                     252      MOVE.W A5, A1           ; guardamos C en A1
+00001230                           253      
+00001230  3292                     254      MOVE.W (A2),(A1)        ; copiamos el contenido de A2 dentro de A1
+00001232                           255      
+00001232  40C2                     256      MOVE.W SR, D2           ; copiamos los flags a D2
+00001234  4244                     257      CLR.W D4                ; limpiamos D4 por si hay algo, ya que lo 
+00001236  4EB9 0000148A            258      JSR FLAGS_NZ            ; necesitaremos D4 para actualizar los flags N y Z
+0000123C                           259      
+0000123C  6000 FE0E                260      BRA FETCH
+00001240                           261      
+00001240                           262  *--------------------------------------------------
+00001240                           263  EADD:                       ; Rc <-- [Rb] + [Ra]
+00001240                           264  
+00001240  3A38 1032                265      MOVE.W EIR, D5          ; movemos la instr. a D5
+00001244  4EB9 0000138C            266      JSR CogerA              ; llamamos a la sub. de usuario para coger el valor
+0000124A  324D                     267      MOVE.W A5, A1           ; de A y lo movemos a A1
+0000124C                           268      
+0000124C  3A38 1032                269      MOVE.W EIR, D5
+00001250  4EB9 0000139A            270      JSR CogerB              ; llamamos a la sub. de usuario para coger el valor
+00001256  344D                     271      MOVE.W A5, A2           ; de B y lo movemos a A2
+00001258                           272      
+00001258  3A38 1032                273      MOVE.W EIR, D5
+0000125C  4EB9 000013A8            274      JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
+00001262  364D                     275      MOVE.W A5, A3           ; de C y lo movemos a A3
+00001264                           276      
+00001264  4286                     277      CLR.L D6                ; preparamos D6 para poder poner el resultado
+00001266  DC51                     278      ADD.W (A1),D6           ; sumamos el contenido de A1 (A) a D6
+00001268  DC52                     279      ADD.W (A2),D6           ; sumamos el contenido de A2 (B) a D6
+0000126A                           280      
+0000126A  40C2                     281      MOVE.W SR,D2            ; guardamos los flags del 68k en D2
+0000126C  4244                     282      CLR.W D4                
+0000126E  4EB9 0000147C            283      JSR Flags_CNZ           ; actualizamos los eflags
+00001274                           284      
+00001274  3686                     285      MOVE.W D6, (A3)         ; movemos el resultado a Rc
+00001276                           286      
+00001276  6000 FDD4                287      BRA FETCH
+0000127A                           288  *--------------------------------------------------    
+0000127A                           289  ESUB:                       ; Rc <-- [Rb] - [Ra]
+0000127A                           290  
+0000127A  3A38 1032                291      MOVE.W EIR, D5          ; movemos la instr. a D5
+0000127E  4EB9 0000138C            292      JSR CogerA              ; llamamos a la sub. de usuario para coger el valor
+00001284  324D                     293      MOVE.W A5, A1           ; de A y lo movemos a A1
+00001286                           294      
+00001286  3A38 1032                295      MOVE.W EIR, D5
+0000128A  4EB9 0000139A            296      JSR CogerB              ; llamamos a la sub. de usuario para coger el valor
+00001290  344D                     297      MOVE.W A5, A2           ; de B y lo movemos a A2
+00001292                           298      
+00001292  3A38 1032                299      MOVE.W EIR, D5
+00001296  4EB9 000013A8            300      JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
+0000129C  364D                     301      MOVE.W A5, A3           ; de C y lo movemos a A3
+0000129E                           302      
+0000129E  4286                     303      CLR.L D6                ; preparamos D6 para poder poner el resultado
+000012A0  DC51                     304      ADD.W (A1),D6           ; sumamos el contenido de A1 (A) a D6
+000012A2  4646                     305      NOT.W D6                ; negamos y sumamos 1 a A para hacer una resta
+000012A4  5246                     306      ADDQ.W #1, D6
+000012A6  DC52                     307      ADD.W (A2),D6           ; B + (-A)
+000012A8                           308  
+000012A8  40C2                     309      MOVE.W SR,D2            ; guardamos los flags del 68k en D2
+000012AA  4244                     310      CLR.W D4                ; limpiamos D4
+000012AC  4EB9 0000147C            311      JSR Flags_CNZ           ; actualizamos los eflags
+000012B2                           312      
+000012B2  3686                     313      MOVE.W D6, (A3)         ; movemos el resultado a Rc
+000012B4                           314      
+000012B4  6000 FD96                315      BRA FETCH
+000012B8                           316  *--------------------------------------------------    
+000012B8                           317  EAND:                       ; Rc <-- [Rb] and [Ra]
+000012B8                           318  
+000012B8  3A38 1032                319      MOVE.W EIR, D5          ; movemos la instr. a D5
+000012BC  4EB9 0000138C            320      JSR CogerA              ; llamamos a la sub. de usuario para coger el valor
+000012C2  324D                     321      MOVE.W A5, A1           ; de A y lo movemos a A1
+000012C4                           322      
+000012C4  3A38 1032                323      MOVE.W EIR, D5
+000012C8  4EB9 0000139A            324      JSR CogerB              ; llamamos a la sub. de usuario para coger el valor
+000012CE  344D                     325      MOVE.W A5, A2           ; de B y lo movemos a A2
+000012D0                           326      
+000012D0  3A38 1032                327      MOVE.W EIR, D5
+000012D4  4EB9 000013A8            328      JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
+000012DA  364D                     329      MOVE.W A5, A3           ; de C y lo movemos a A3
+000012DC                           330  
+000012DC  3C11                     331      MOVE.W (A1),D6          ; movemos A y B a los registros de dat.
+000012DE  3E12                     332      MOVE.W (A2),D7
+000012E0  CC47                     333      AND.W   D7 ,D6          ; A and B
+000012E2                           334      
+000012E2  40C2                     335      MOVE.W SR,D2            ; guardamos los flags del 68k en D2
+000012E4  4244                     336      CLR.W D4                ; limpiamos D4 
+000012E6  4EB9 0000148A            337      JSR Flags_NZ            ; actualizamos los eflags
+000012EC                           338      
+000012EC  3686                     339      MOVE.W D6, (A3)         ; movemos el resultado a Rc
+000012EE                           340      
+000012EE  6000 FD5C                341      BRA FETCH
+000012F2                           342  *--------------------------------------------------
+000012F2                           343  ESET:                       ; Rc <-- k (ext. signo)
+000012F2  3A38 1032                344      MOVE.W EIR, D5          ; movemos la instr. a D5
+000012F6  4EB9 000013A8            345      JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
+000012FC  364D                     346      MOVE.W A5, A3           ; de C y lo movemos a A3
+000012FE                           347      
+000012FE  3A38 1032                348      MOVE.W EIR, D5          ; movemos la instr. a D5
+00001302  4EB9 000013D0            349      JSR CogerK              ; cogemos k (dentro se realiza la ext. de signo)
+00001308  3C05                     350      MOVE.W D5, D6           ; guardamos k en D6
+0000130A                           351      
+0000130A  3686                     352      MOVE.W D6,(A3)          ; guardamos D6 (k) dentro de A3 (C)
+0000130C                           353      
+0000130C  40C2                     354      MOVE.W SR,D2            ; guardamos los flags del 68k en D2
+0000130E  4244                     355      CLR.W D4                ; limpiamos D4 por si hay algo, ya que lo 
+00001310  4EB9 0000148A            356      JSR FLAGS_NZ            ; necesitaremos D4 para actualizar los flags N y Z
+00001316                           357  
+00001316  6000 FD34                358      BRA FETCH
+0000131A                           359  
+0000131A                           360  *--------------------------------------------------
+0000131A                           361  EADQ:                       ; Rc <-- [Rc] + k (ext. signo)
+0000131A  3A38 1032                362      MOVE.W EIR, D5          ; movemos la instr. a D5
+0000131E  4EB9 000013A8            363      JSR CogerC              ; llamamos a la sub. de usuario para coger el valor
+00001324  364D                     364      MOVE.W A5, A3           ; de C y lo movemos a A3
+00001326                           365      
+00001326  3A38 1032                366      MOVE.W EIR, D5          ; movemos la instr. a D5
+0000132A  4EB9 000013D0            367      JSR CogerK              ; cogemos k (dentro se realiza la ext. de signo)
+00001330  3C05                     368      MOVE.W D5, D6           ; guardamos k en D6
+00001332                           369      
+00001332  DD53                     370      ADD.W D6,(A3)           ; sumamos D6 (k) con A3(C) y lo guardamos en A3(C)
+00001334                           371      
+00001334  40C2                     372      MOVE.W SR,D2            ; guardamos los flags del 68k en D2
+00001336  4244                     373      CLR.W D4                ; limpiamos D4 por si hay algo, ya que lo 
+00001338  4EB9 0000147C            374      JSR FLAGS_CNZ           ; necesitaremos D4 para actualizar todos los eflags
+0000133E                           375  
+0000133E  6000 FD0C                376      BRA FETCH
+00001342                           377  *--------------------------------------------------
+00001342                           378  ELSH:                       ; si n=0 => Rb <-- [Rb] left shift p
+00001342                           379                              ; si n=1 => Rb <-- [Rb] right shift p
+00001342  3A38 1032                380      MOVE.W EIR, D5          ; movemos la inst. a D5
+00001346  4EB9 0000139A            381      JSR CogerB              ; cogemos el registro B
+0000134C  344D                     382      MOVE.W A5, A2           ; guardamos el Rb en A2
+0000134E  3E12                     383      MOVE.W (A2),D7          ; movemos el contenido de A2(B) a un registro
+00001350                           384                              ; temporal
+00001350                           385      
+00001350  3A38 1032                386      MOVE.W EIR, D5          ; movemos la inst. a D5
+00001354  4EB9 000013C0            387      JSR CogerP              ; cogemos P
+0000135A  3C05                     388      MOVE.W D5, D6           ; guardamos D5(P) en D6
+0000135C                           389  
+0000135C  3A38 1032                390      MOVE.W EIR, D5          ; movemos la intsrucción a D5
+00001360  4EB9 000013BA            391      JSR CogerN              ; cogemos el valor de N
+00001366  BA7C 0000                392      CMP #0, D5              ; comparamos 0 con N
+0000136A  6600 000E                393      BNE RShift              ; si N es 1 saltamos a right shift
+0000136E                           394      
+0000136E  ED6F                     395      LSL.W D6 , D7           ; n=0, por tanto hacemos un LSL con desp. D6(P)
+00001370  40C2                     396      MOVE.W SR, D2           ; guardamos los flags después de la operación
+00001372  3447                     397      MOVE.W D7, A2           ; guardamos el resultado en A2(B)
+00001374  4EF9 00001380            398      JMP FINAL_LSH           ; saltamos al final
+0000137A                           399      
+0000137A                           400     RShift:
+0000137A  EC6F                     401      LSR.W D6, D7            ; n=1, por tanto hacemos un LSR con desp. D6(P)
+0000137C  40C2                     402      MOVE.W SR, D2           ; guardamos los flags 
+0000137E  3447                     403      MOVE.W D7, A2           ; guardamos el resultado en A2(B)
+00001380                           404      
+00001380                           405   FINAL_LSH:
+00001380  4244                     406      CLR.W D4                ; limpiamos D4 porque lo utilizamos para actualizar
+00001382  4EB9 0000147C            407      JSR FLAGS_CNZ           ; los flags CNZ
+00001388                           408      
+00001388  6000 FCC2                409      BRA FETCH
+0000138C                           410      
+0000138C                           411  *--------------------------------------------------
+0000138C                           412      ;--- FEXEC: FIN EJECUCION
+0000138C                           413      
+0000138C                           414      
+0000138C                           415  
+0000138C                           416      ;--- ISUBR: INICIO SUBRUTINAS
+0000138C                           417          ;*** Aqui debeis incluir las subrutinas que necesite vuestra solucion
+0000138C                           418          ;*** SALVO DECOD, que va en la siguiente seccion
+0000138C                           419  
+0000138C                           420              ; ESCRIBID VUESTRO CODIGO AQUI
+0000138C                           421              
+0000138C                           422  CogerA:
+0000138C  E08D                     423      LSR.L #8,D5             ; movemos D5 8 posiciones a la derecha
+0000138E  CA7C 0007                424      AND.W #$0007,D5         ; con una máscara, cogemos el valor de A (aaa)
+00001392                           425      
+00001392  4EB9 000013DA            426      JSR REGISTROS           ; miramos a qué registro se corresponde
+00001398                           427      
+00001398  4E75                     428      RTS
+0000139A                           429      
+0000139A                           430      
+0000139A                           431  CogerB:
+0000139A  E88D                     432      LSR.L #4,D5             ; movemos D5 4 posiciones a la derecha
+0000139C  CA7C 0007                433      AND.W #$0007,D5         ; con una máscara, cogemos el valor de B (bbb)
+000013A0                           434      
+000013A0  4EB9 000013DA            435      JSR REGISTROS           ; miramos a qué registro se corresponde
+000013A6                           436      
+000013A6  4E75                     437      RTS
+000013A8                           438  
+000013A8                           439  
+000013A8                           440  CogerC:
+000013A8  CA7C 0007                441      AND.W #$0007,D5         ; con una máscara, cogemos el valor de C (ccc)
+000013AC                           442  
+000013AC  4EB9 000013DA            443      JSR REGISTROS           ; miramos a qué registro se corresponde
+000013B2                           444      
+000013B2  4E75                     445      RTS
+000013B4                           446     
+000013B4                           447  CogerI:
+000013B4  CA7C 0001                448      AND.W #0001,D5          ; con una máscara, cogemos el valor de I
+000013B8                           449      
+000013B8  4E75                     450      RTS
+000013BA                           451      
+000013BA                           452  CogerN:
+000013BA  CA7C 0001                453      AND.W #0001,D5          ; con una máscara, cogemos el valor de N
+000013BE                           454      
+000013BE  4E75                     455      RTS
+000013C0                           456      
+000013C0                           457  CogerP:
+000013C0  E08D                     458      LSR.L #8,D5             ; movemos D5 8 posiciones a la derecha
+000013C2  CA7C 0007                459      AND.W #0007,D5          ; con una máscara, cogemos el valor de P (ppp)
+000013C6                           460      
+000013C6  4E75                     461      RTS
+000013C8                           462      
+000013C8                           463  CogerM:
+000013C8  E28D                     464      LSR.L #1,D5             ; movemos D5 4 posiciones a la derecha
+000013CA  CA7C 00FF                465      AND.W #$00FF,D5         ; con una máscara, cogemos el valor de M (mmmmmmmm)
+000013CE                           466      
+000013CE  4E75                     467      RTS
+000013D0                           468     
+000013D0                           469  CogerK:
+000013D0  E68D                     470      LSR.L #3,D5             ; movemos D5 3 posiciones a la derecha
+000013D2  CA3C 00FF                471      AND.B #$00FF,D5         ; con una máscara, cogemos el valor de K (kkkkkkkk)
+000013D6  4885                     472      EXT.W D5                ; hacemos una extensión de signo (byte -> word)
+000013D8                           473      
+000013D8  4E75                     474      RTS
+000013DA                           475  
+000013DA                           476  *--------------------------------------
+000013DA                           477  
+000013DA                           478  REGISTROS:
+000013DA  0805 0002                479      BTST.L #2,D5            ; miramos el tercer bit del registro
+000013DE  6600 0026                480      BNE REGISTROS_1XX       ; si no es 0, saltamos para mirar el registro 1XX
+000013E2                           481      
+000013E2                           482     ;0XX
+000013E2  0805 0001                483      BTST.L #1,D5            ; miramos el segundo bit del registro
+000013E6  6600 0010                484      BNE REGISTROS_01X       ; si no es 0, saltamos para mirar el registro 01X
+000013EA                           485      
+000013EA                           486          ;00X
+000013EA  0805 0000                487           BTST.L #0,D5       ; miramos el primer bit del registro
+000013EE  6700 003A                488           BEQ REGISTRO_T0    ; si es 0, el registro es B0
+000013F2  4EF9 00001434            489           JMP REGISTRO_T1    ; si es 0, el registro es B1
+000013F8                           490      
+000013F8                           491          REGISTROS_01X:
+000013F8  0805 0000                492           BTST.L #0,D5       ; miramos el primer bit del registro
+000013FC  6700 0040                493           BEQ REGISTRO_X2    ; si es 0, el registro es R2
+00001400  4EF9 00001448            494           JMP REGISTRO_X3    ; si es 0, el registro es R3
+00001406                           495      
+00001406                           496     REGISTROS_1XX:
+00001406  0805 0001                497      BTST.L #1,D5            ; miramos el segundo bit del registro
+0000140A  6600 0010                498      BNE REGISTROS_11X       ; si no es 0, saltamos para mirar el registro 11X
+0000140E                           499      
+0000140E                           500          ;10X
+0000140E  0805 0000                501           BTST.L #0,D5       ; miramos el primer bit del registro
+00001412  6700 003E                502           BEQ REGISTRO_X4    ; si es 0, el registro es R4
+00001416  4EF9 0000145C            503           JMP REGISTRO_X5    ; si es 0, el registro es R5
+0000141C                           504      
+0000141C                           505          REGISTROS_11X:
+0000141C  0805 0000                506           BTST.L #0,D5       ; miramos el primer bit del registro
+00001420  6700 0044                507           BEQ REGISTRO_X6    ; si es 0, el registro es T6
+00001424  4EF9 00001470            508           JMP REGISTRO_X7    ; si es 0, el registro es T7
+0000142A                           509      
+0000142A                           510  
+0000142A                           511    ; A partir de aquí guardamos las direcciones y salimos de la subrutina 
+0000142A                           512     REGISTRO_T0:
+0000142A  4BF8 1036                513      LEA.L ET0,A5            ; guardamos el contenido de ET0 en A5
+0000142E  4EF9 0000147A            514      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+00001434                           515      
+00001434                           516     REGISTRO_T1:
+00001434  4BF8 1038                517      LEA.L ET1,A5            ; guardamos el contenido de ET1 en A5
+00001438  4EF9 0000147A            518      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+0000143E                           519      
+0000143E                           520     REGISTRO_X2:
+0000143E  4BF8 103A                521      LEA.L EX2,A5            ; guardamos el contenido de EX2 en A5
+00001442  4EF9 0000147A            522      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+00001448                           523      
+00001448                           524     REGISTRO_X3:
+00001448  4BF8 103C                525      LEA.L EX3,A5            ; guardamos el contenido de EX3 en A5
+0000144C  4EF9 0000147A            526      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+00001452                           527      
+00001452                           528     REGISTRO_X4:
+00001452  4BF8 103E                529      LEA.L EX4,A5            ; guardamos el contenido de EX4 en A5
+00001456  4EF9 0000147A            530      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+0000145C                           531      
+0000145C                           532     REGISTRO_X5:
+0000145C  4BF8 1040                533      LEA.L EX5,A5            ; guardamos el contenido de EX5 en A5
+00001460  4EF9 0000147A            534      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+00001466                           535      
+00001466                           536     REGISTRO_X6:
+00001466  4BF8 1042                537      LEA.L EX6,A5            ; guardamos el contenido de EX6 en A5
+0000146A  4EF9 0000147A            538      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+00001470                           539      
+00001470                           540     REGISTRO_X7:
+00001470  4BF8 1044                541      LEA.L EX7,A5            ; guardamos el contenido de EX7 en A5
+00001474  4EF9 0000147A            542      JMP FIN_REGISTROS       ; saltamos al final de la subrutina de registros
+0000147A                           543      
+0000147A                           544     FIN_REGISTROS: 
+0000147A  4E75                     545      RTS
+0000147C                           546  *--------------------------------------
+0000147C                           547  ; Flags 68k = NZVC, FLAGS HAL9000 = 0CNZ  
+0000147C                           548  
+0000147C                           549  FLAGS_CNZ:
+0000147C  3602                     550      MOVE D2,D3              ; copiamos los flags para poder manipularlos
+0000147E  0803 0000                551      BTST.L #0,D3            ; miramos C
+00001482  6700 0006                552      BEQ FLAGS_NZ            ; si C es 0, saltamos a mirar el flag Z
+00001486                           553      
+00001486  08C4 0002                554      BSET.L #2,D4              ; si no es 0, pondremos a 1 el valor de C en D4
+0000148A                           555      
+0000148A                           556  *--------------------------------------    
+0000148A                           557  FLAGS_NZ:
+0000148A  3602                     558      MOVE.W D2,D3            ; copiamos los flags para poder manipularlos
+0000148C  0803 0003                559      BTST.L #3,D3            ; miramos N
+00001490  6700 0006                560      BEQ FLAG_Z              ; si N es 0, saltamos a mirar el siguiente flag
+00001494                           561      
+00001494  08C4 0001                562      BSET.L #1,D4            ; si no es 0, pondremos a 1 el valor de N en D4
+00001498                           563      
+00001498                           564     FLAG_Z:
+00001498  3602                     565      MOVE.W D2,D3            ; copiamos los flags para poder manipularlos
+0000149A  0803 0002                566      BTST.L #2,D3            ; miramos Z
+0000149E  6700 0006                567      BEQ FINAL_FLAGS         ; si Z es 0, saltamos al final de los flags
+000014A2                           568      
+000014A2  08C4 0000                569      BSET.L #0,D4            ; si no es 0, pondremos a 1 el valor de Z en D4
+000014A6                           570      
+000014A6                           571     FINAL_FLAGS:
+000014A6  31C4 1046                572      MOVE.W D4,ESR           ; movemos D4 (flags finales) a ESR, los eflags
+000014AA  4E75                     573      RTS
+000014AC                           574          
+000014AC                           575          
+000014AC                           576      ;--- FSUBR: FIN SUBRUTINAS
+000014AC                           577      
+000014AC                           578      
+000014AC                           579  
+000014AC                           580      ;--- IDECOD: INICIO DECOD
+000014AC                           581          ;*** Tras la etiqueta DECOD, debeis implementar la subrutina de 
+000014AC                           582          ;*** decodificacion, que debera ser de libreria, siguiendo la interfaz
+000014AC                           583          ;*** especificada en el enunciado
+000014AC                           584  DECOD:
+000014AC                           585              ; ESCRIBID VUESTRO CODIGO AQUI
+000014AC                           586              
+000014AC  3F00                     587      MOVE.W D0,-(A7)         ; guardamos D0 en la pila
+000014AE  3F01                     588      MOVE.W D1,-(A7)         ; guardamos D1 en la pila
+000014B0  302F 0008                589      MOVE.W 8(A7),D0         ; la instrucción que hemos guardado la pasamos a D0
+000014B4                           590  
+000014B4  323C 0000                591      MOVE.W #0, D1           ; D1 contiene el id de la instrucción
+000014B8  0800 000F                592      BTST.L #15, D0          ; miramos el bit 16º de la instr.
+000014BC  6600 0050                593      BNE DECOD_1XXX          ; si no es 0, saltamos a para la instr. 1XXX
+000014C0                           594      
+000014C0                           595      ;0XXX
+000014C0  0800 000E                596      BTST.L #14, D0          ; miramos el bit 15º de la instr.
+000014C4  6600 0028                597      BNE DECOD_01XX          ; si no es 0, saltamos a para la instr. 01XX
+000014C8                           598  
+000014C8                           599          ;00XX
+000014C8  0800 000D                600          BTST.L #13, D0      ; miramos el bit 14º de la instr.
+000014CC  6600 0010                601          BNE DECOD_001X      ; si no es 0, saltamos a para la instr. 001X
+000014D0                           602          
+000014D0                           603              ;000X
+000014D0  0800 000C                604              BTST.L #12, D0  ; miramos el bit 13º de la instr.
+000014D4  6600 0098                605              BNE FINAL_AUX   ; si no es 0, saltamos a final aux para sumar 1
+000014D8  4EF9 00001570            606              JMP FINAL       ; si es 0, saltamos al final
+000014DE                           607              
+000014DE                           608            DECOD_001X:
+000014DE  5441                     609              ADDQ.W #2, D1   ; sumamos 2 al id de la instr.
+000014E0  0800 000C                610              BTST.L #12, D0  ; miramos el bit 13º de la instr.  
+000014E4  6600 0088                611              BNE FINAL_AUX   ; si no es 0, saltamos a final aux para sumar 1
+000014E8  4EF9 00001570            612              JMP FINAL       ; si es 0, saltamos al final
+000014EE                           613           
+000014EE                           614        DECOD_01XX:
+000014EE  5841                     615          ADDQ.W #4, D1       ; sumamos 4 al id de la instr.
+000014F0  0800 000D                616          BTST.L #13, D0      ; miramos el bit 14º de la instr.
+000014F4  6600 0010                617          BNE DECOD_0110      ; si no es 0, saltamos a la única otra 
+000014F8                           618                              ; posibilidad que es 0110
+000014F8                           619             ;010X
+000014F8  0800 000C                620             BTST.L #12, D0   ; miramos el bit 13º de la instr.
+000014FC  6600 0070                621             BNE FINAL_AUX    ; si no es 0, saltamos a final aux para sumar 1
+00001500  4EF9 00001570            622             JMP FINAL        ; si es 0, saltamos directamente al final
+00001506                           623        
+00001506                           624        DECOD_0110:
+00001506  5C41                     625          ADDQ.W #6, D1       ; sumamos 6 directamente porque solo hay 1 instr.
+00001508  4EF9 00001570            626          JMP FINAL           ; que empiece por 011
+0000150E                           627          
+0000150E                           628    DECOD_1XXX:
+0000150E  5E41                     629      ADDQ.W #7, D1           ; id = 7
+00001510  0800 000E                630      BTST.L #14, D0          ; miramos el bit 15º de la instr.
+00001514  6600 0008                631      BNE DECOD_11XXX         ; si no es 0, saltamos a la instr. 10XXX
+00001518  4EF9 00001570            632      JMP FINAL               ; como la única instr. con 10 sumamos el id
+0000151E                           633                              ; y saltamos directamente al final
+0000151E                           634          
+0000151E                           635        
+0000151E                           636    DECOD_11XXX:
+0000151E  0800 000D                637      BTST.L #13, D0          ; miramos el bit 14º 
+00001522  6600 002A                638      BNE DECOD_111XX         ; si no es 0, saltamos a 111XX
+00001526                           639      
+00001526                           640          ;110XX
+00001526  0800 000C                641          BTST.L #12, D0      ; miramos el bit 13º
+0000152A  6600 0012                642          BNE DECOD_1101X
+0000152E                           643          
+0000152E                           644              ;1100X
+0000152E  5241                     645              ADDQ.W #1, D1   ; id = 8
+00001530  0800 000B                646              BTST.L #11, D0  ; miramos el bit 12º 
+00001534  6600 0038                647              BNE FINAL_AUX   ; si es 1, saltamos al final aux para sumar 1
+00001538  4EF9 00001570            648              JMP FINAL       ; si es 0, saltamos directamente al final
+0000153E                           649  
+0000153E                           650  
+0000153E                           651             DECOD_1101X:
+0000153E  5641                     652              ADDQ.W #3, D1   ; id = 10
+00001540  0800 000B                653              BTST.L #11, D0  ; miramos el bit 12º
+00001544  6600 0028                654              BNE FINAL_AUX   ; si es 1, saltamos al final aux para sumar 1
+00001548  4EF9 00001570            655              JMP FINAL       ; si es 0, saltamos directamente al final
+0000154E                           656        
+0000154E                           657        DECOD_111XX:
+0000154E  5A41                     658          ADDQ.W #5, D1       ; id = 12
+00001550  0800 000C                659          BTST.L #12, D0      ; miramos el bit 13º
+00001554  6600 0010                660          BNE DECOD_11110     ; si es 1, saltamos a 11110
+00001558                           661          
+00001558                           662              ;11100
+00001558  0800 000B                663              BTST.L #11, D0  ; miramos el bit 12º
+0000155C  6600 0010                664              BNE FINAL_AUX   ; si es 1, sumamos 1 al id
+00001560  4EF9 00001570            665              JMP FINAL       ; si es 0, saltamos al final
+00001566                           666              
+00001566                           667            DECOD_11110:
+00001566  5441                     668              ADDQ.W #2, D1   ; id = 14
+00001568  4EF9 00001570            669              JMP FINAL
+0000156E                           670  
+0000156E                           671     FINAL_AUX:
+0000156E  5241                     672      ADDQ.W #1,D1            ; sumamos 1 al id
+00001570                           673      
+00001570                           674     FINAL: 
+00001570  3F41 000A                675      MOVE.W D1,10(A7)        ; guardamos el id en la pila
+00001574  321F                     676      MOVE.W (A7)+,D1         ; sacamos D1 de la pila
+00001576  301F                     677      MOVE.W (A7)+,D0         ; sacamos D0 de la pila
+00001578                           678      
+00001578  4E75                     679      RTS
+0000157A                           680  
+0000157A                           681  
+0000157A                           682      ;--- FDECOD: FIN DECOD
+0000157A                           683      
+0000157A                           684  SIMHALT:
+0000157A  FFFF FFFF                685      SIMHALT                 ; detiene la máquina
+0000157E                           686      END    START
 
 No errors detected
 No warnings generated
@@ -694,83 +696,83 @@ No warnings generated
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
-COGERA              1366
-COGERB              1374
-COGERC              1382
-COGERI              138E
-COGERK              13AA
-COGERM              13A2
-COGERN              1394
-COGERP              139A
-DECOD               1486
-DECOD_001X          14B8
-DECOD_0110          14E0
-DECOD_01XX          14C8
-DECOD_1101X         1518
-DECOD_11110         1540
-DECOD_111XX         1528
-DECOD_11XXX         14F8
-DECOD_1XXX          14E8
-EADD                121A
-EADQ                12F4
-EAND                1292
-ECOPY               11F2
-EEXIT               11EC
-EGOI                119E
-EGON                11CE
-EGOZ                11B0
-EIR                 1010
-ELOA                10B6
-ELOIP               112A
-ELSH                131C
+COGERA              138C
+COGERB              139A
+COGERC              13A8
+COGERI              13B4
+COGERK              13D0
+COGERM              13C8
+COGERN              13BA
+COGERP              13C0
+DECOD               14AC
+DECOD_001X          14DE
+DECOD_0110          1506
+DECOD_01XX          14EE
+DECOD_1101X         153E
+DECOD_11110         1566
+DECOD_111XX         154E
+DECOD_11XXX         151E
+DECOD_1XXX          150E
+EADD                1240
+EADQ                131A
+EAND                12B8
+ECOPY               1218
+EEXIT               1212
+EGOI                11C4
+EGON                11F4
+EGOZ                11D6
+EIR                 1032
+ELOA                10D8
+ELOIP               1150
+ELSH                1342
 EMEM                1000
-EPC                 1012
-ESET                12CC
-ESR                 1024
-ESTIP               116A
-ESTO                10F6
-ESUB                1254
-ET0                 1014
-ET1                 1016
-EX2                 1018
-EX3                 101A
-EX4                 101C
-EX5                 101E
-EX6                 1020
-EX7                 1022
-FETCH               102A
-FINAL               154A
-FINAL_AUX           1548
-FINAL_FLAGS         1480
-FINAL_LOAD          10EA
-FINAL_LOIP          115E
-FINAL_LSH           135A
-FINAL_STIP          119A
-FINAL_STORE         1126
-FIN_REGISTROS       1454
-FLAGS_CNZ           1456
-FLAGS_NZ            1464
-FLAG_Z              1472
-I1_LOAD             10E4
-I1_LOIP             1156
-I1_STIP             1194
-I1_STORE            1122
-IBREDECOD           1040
-JMPLIST             105C
-N0                  11E8
-REGISTROS           13B4
-REGISTROS_01X       13D2
-REGISTROS_11X       13F6
-REGISTROS_1XX       13E0
-REGISTRO_T0         1404
-REGISTRO_T1         140E
-REGISTRO_X2         1418
-REGISTRO_X3         1422
-REGISTRO_X4         142C
-REGISTRO_X5         1436
-REGISTRO_X6         1440
-REGISTRO_X7         144A
-RSHIFT              1354
-SIMHALT             1554
-START               1026
-Z0                  11CA
+EPC                 1034
+ESET                12F2
+ESR                 1046
+ESTIP               1190
+ESTO                111C
+ESUB                127A
+ET0                 1036
+ET1                 1038
+EX2                 103A
+EX3                 103C
+EX4                 103E
+EX5                 1040
+EX6                 1042
+EX7                 1044
+FETCH               104C
+FINAL               1570
+FINAL_AUX           156E
+FINAL_FLAGS         14A6
+FINAL_LOAD          1110
+FINAL_LOIP          1184
+FINAL_LSH           1380
+FINAL_STIP          11C0
+FINAL_STORE         114C
+FIN_REGISTROS       147A
+FLAGS_CNZ           147C
+FLAGS_NZ            148A
+FLAG_Z              1498
+I1_LOAD             110A
+I1_LOIP             117C
+I1_STIP             11BA
+I1_STORE            1148
+IBREDECOD           1062
+JMPLIST             107E
+N0                  120E
+REGISTROS           13DA
+REGISTROS_01X       13F8
+REGISTROS_11X       141C
+REGISTROS_1XX       1406
+REGISTRO_T0         142A
+REGISTRO_T1         1434
+REGISTRO_X2         143E
+REGISTRO_X3         1448
+REGISTRO_X4         1452
+REGISTRO_X5         145C
+REGISTRO_X6         1466
+REGISTRO_X7         1470
+RSHIFT              137A
+SIMHALT             157A
+START               1048
+Z0                  11F0

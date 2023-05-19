@@ -11,9 +11,7 @@
 * - Diferencia entre SET y ADQ solo move en vez de add? 
 *-----------------------------------------------------------
     ORG $1000
-EMEM:   DC.W $E082,$E09B,$E0B4,$E01D,$2020,$C006,$2031,$C017,$F160
-        DC.W $F170,$CE70,$3040,$EFFD,$501E,$4008,$8000,$0001
-        DC.W $0001,$0001,$0001,$0001,$0001,$0000,$0000,$0000
+EMEM:   DC.W $000F,$C012,$400A,$D222,$8000,$CA22,$8000,$0001
 EIR:    DC.W 0 ;eregistro de instruccion
 EPC:    DC.W 0 ;econtador de programa
 ET0:    DC.W 0 ;eregistro T0
@@ -25,7 +23,6 @@ EX5:    DC.W 0 ;eregistro X5
 EX6:    DC.W 0 ;eregistro X6
 EX7:    DC.W 0 ;eregistro X7
 ESR:    DC.W 0 ;eregistro de estado (00000000 00000CNZ)
-
 START:
     CLR.W EPC
 
@@ -107,16 +104,17 @@ JMPLIST:
 ELOA:                       ; Ti <-- [M]
     MOVE.W EIR, D5          ; metemos la instr. en D5
     JSR CogerM              ; sacamaos el valor de M
-    MOVEA.W D5, A3           ; guardamos el valor de M en D6
+    MULU.W #2, D5
+    ADDA.L D5, A3          ; guardamos el valor de M en D6
     
-    MOVEA.W EMEM(A3),A2     ; sumamos la dirección de EMemoria + M y la 
+    MOVE.W EMEM(A3),D6     ; sumamos la dirección de EMemoria + M y la 
                             ; y la guardamos en A2
     MOVE.W EIR, D5          ; movemos la inst. a D5, ya que hemos modificado D5
     JSR CogerI              ; sacamos el valor de I
     CMP #0, D5              ; comparamos I con 0              
     BNE I1_Load             ; si no son iguales significa que I es 1, por tanto,
                             ; saltamos al caso donde I es 1
-    MOVE.W (A2),ET0         ; cuando I es 0, guardamos el contenido de Emem + M
+    MOVE.W D6,ET0         ; cuando I es 0, guardamos el contenido de Emem + M
                             ; en ET0
     MOVE.W SR, D2           ; movemos los flags a D2
     JMP FINAL_Load          ; saltamos al final del ELoad    
@@ -684,6 +682,8 @@ DECOD:
 SIMHALT:
     SIMHALT                 ; detiene la máquina
     END    START
+
+
 
 
 
