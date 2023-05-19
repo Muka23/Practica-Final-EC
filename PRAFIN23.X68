@@ -11,7 +11,9 @@
 * - Diferencia entre SET y ADQ solo move en vez de add? 
 *-----------------------------------------------------------
     ORG $1000
-EMEM:   DC.W $000F,$C012,$400A,$D222,$8000,$CA22,$8000,$0001
+EMEM:   DC.W $E082,$E09B,$E0B4,$E01D,$2020,$C006,$2031,$C017,$F160
+        DC.W $F170,$CE70,$3040,$EFFD,$501E,$4008,$8000,$0001
+        DC.W $0001,$0001,$0001,$0001,$0001,$0000,$0000,$0000
 EIR:    DC.W 0 ;eregistro de instruccion
 EPC:    DC.W 0 ;econtador de programa
 ET0:    DC.W 0 ;eregistro T0
@@ -120,7 +122,7 @@ ELOA:                       ; Ti <-- [M]
     JMP FINAL_Load          ; saltamos al final del ELoad    
    
    I1_Load:
-    MOVE.W (A2),ET1
+    MOVE.W D6,ET1
     MOVE.W SR, D2           ; movemos los flags a D2
     
  FINAL_Load:
@@ -153,20 +155,26 @@ ESTO:                       ; M <-- [Ti]
 ELOIP:                      ; Ti <-- [[Xb]], Xb <-- [Xb] + 1
     MOVE.W EIR, D5          ; metemos la instr. en D5
     JSR CogerB              ; sacamaos el registro B
-    MOVE.W A5, A2           ; guardamos el Rb en A2
+    MOVE.W A5, A2           ; guardamos el Xb en A2
     
     MOVE.W EIR, D5          ; metemos la inst. en D5
     JSR CogerI              ; cogemos I
     CMP #0, D5              ; comparamos D5(I) con 0
     BNE I1_LOIP             ; si no son iguales saltamos donde I = 1
     
-    MOVE.W (A2),ET0         ; T0 <-- [[Rb]]
+    MOVE.W (A2),D6         ; T0 <-- [[Xb]]
+    MULU.W #2, D6
+    MOVEA.L D6, A3
+    MOVE.W EMEM(A3),ET0
     MOVE.W SR, D2           ; guardamos los flags despues de la op.
     ADD.W #1, (A2)          ; Xb <-- [Xb] + 1   
     JMP FINAL_LOIP
     
    I1_LOIP:
-    MOVE.W (A2),ET1         ; T1 <-- [[Rb]]
+    MOVE.W (A2),D6         ; T0 <-- [[Xb]]
+    MULU.W #2, D6
+    MOVEA.L D6, A3
+    MOVE.W EMEM(A3),ET1
     MOVE.W SR, D2           ; guardamos los flags despues de la op.
     ADD.W #1, (A2)          ; Xb <-- [Xb] + 1   
     
@@ -187,12 +195,18 @@ ESTIP:                      ; [Xb] <-- [Ti], Xb <-- [Xb] + 1
     CMP #0, D5              ; comparamos D5(I) con 0
     BNE I1_STIP             ; si no son iguales saltamos donde I = 1
     
-    MOVE.W (ET0),(A2)       ; [Xb] <-- [T0]
+    MOVE.W (A2),D6       ; [Xb] <-- [T0]
+    MULU.W #2, D6
+    MOVEA.L D6, A3
+    MOVE.W (ET0),EMEM(A3)
     ADD.W #1, (A2)          ; Xb <-- [Xb] + 1  
     JMP FINAL_STIP
     
    I1_STIP:
-    MOVE.W (ET0),(A2)       ; [Xb] <-- [T0]
+    MOVE.W (A2),D6       ; [Xb] <-- [T0]
+    MULU.W #2, D6
+    MOVEA.L D6, A3
+    MOVE.W (ET0),EMEM(A3)
     ADD.W #1, (A2)          ; Xb <-- [Xb] + 1  
     
  FINAL_STIP:
@@ -392,7 +406,7 @@ ELSH:                       ; si n=0 => Rb <-- [Rb] left shift p
     
     LSL.W D6 , D7           ; n=0, por tanto hacemos un LSL con desp. D6(P)
     MOVE.W SR, D2           ; guardamos los flags después de la operación
-    MOVE.W D7, A2           ; guardamos el resultado en A2(B)
+    MOVE.W D7, (A2)           ; guardamos el resultado en A2(B)
     JMP FINAL_LSH           ; saltamos al final
     
    RShift:
