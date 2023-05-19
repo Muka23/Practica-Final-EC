@@ -11,9 +11,7 @@
 * - Diferencia entre SET y ADQ solo move en vez de add? 
 *-----------------------------------------------------------
     ORG $1000
-EMEM:   DC.W $E082,$E09B,$E0B4,$E01D,$2020,$C006,$2031,$C017,$F160
-        DC.W $F170,$CE70,$3040,$EFFD,$501E,$4008,$8000,$0001
-        DC.W $0001,$0001,$0001,$0001,$0001,$0000,$0000,$0000
+EMEM:   DC.W $000F,$C012,$400A,$D222,$8000,$CA22,$8000,$0001
 EIR:    DC.W 0 ;eregistro de instruccion
 EPC:    DC.W 0 ;econtador de programa
 ET0:    DC.W 0 ;eregistro T0
