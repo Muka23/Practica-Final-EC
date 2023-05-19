@@ -11,7 +11,7 @@
 * - Diferencia entre SET y ADQ solo move en vez de add? 
 *-----------------------------------------------------------
     ORG $1000
-EMEM:   DC.W $000F,$C012,$400A,$D222,$8000,$CA22,$8000,$0001
+EMEM:   DC.W $0011,$1013,$C012,$400A,$D222,$8000,$CA22,$8000,$0001,$0000
 EIR:    DC.W 0 ;eregistro de instruccion
 EPC:    DC.W 0 ;econtador de programa
 ET0:    DC.W 0 ;eregistro T0
@@ -105,7 +105,7 @@ ELOA:                       ; Ti <-- [M]
     MOVE.W EIR, D5          ; metemos la instr. en D5
     JSR CogerM              ; sacamaos el valor de M
     MULU.W #2, D5
-    ADDA.L D5, A3          ; guardamos el valor de M en D6
+    MOVEA.L D5, A3          ; guardamos el valor de M en D6
     
     MOVE.W EMEM(A3),D6     ; sumamos la dirección de EMemoria + M y la 
                             ; y la guardamos en A2
@@ -131,20 +131,19 @@ ELOA:                       ; Ti <-- [M]
 ESTO:                       ; M <-- [Ti]
     MOVE.W EIR, D5          ; metemos la instr. en D5
     JSR CogerM              ; sacamaos el valor de M
-    MOVEA.W D5, A3           ; guardamos el valor de M en D6   
-    
-    MOVEA.W EMEM(A3),A2     ; A2 <-- EMEM + M (direcciones de memoria)
+    MULU.W #2, D5
+    MOVEA.L D5, A3          ; guardamos el valor de M en D6  
  
     MOVE.W EIR, D5          ; metemos la instr. en D5
     JSR CogerI
     CMP #0, D5              ; si i = 1 saltamos al caso de ET1
     BNE I1_Store            
     
-    MOVE.W ET0, A2          ; movemos el contenido de ET0 a EMEM + M
+    MOVE.W ET0, EMEM(A3)          ; movemos el contenido de ET0 a EMEM + M
     JMP FINAL_Store
     
    I1_Store:
-    MOVE.W ET1, A2          ; movemos el contenido de ET1 a EMEM + M
+    MOVE.W ET1, EMEM(A3)          ; movemos el contenido de ET1 a EMEM + M
   
   FINAL_Store:
     BRA FETCH
