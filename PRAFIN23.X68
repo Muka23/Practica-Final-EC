@@ -104,23 +104,23 @@ JMPLIST:
 ELOA:                       ; Ti <-- [M]
     MOVE.W EIR, D5          ; metemos la instr. en D5
     JSR CogerM              ; sacamaos el valor de M
-    MULU.W #2, D5
-    MOVEA.L D5, A3          ; guardamos el valor de M en D6
+    MULU.W #2, D5           ; mult. M por 2, ya que estamos trabajando en Words
+    MOVEA.L D5, A3          ; guardamos el valor de M en A3
     
-    MOVE.W EMEM(A3),D6     ; sumamos la dirección de EMemoria + M y la 
-                            ; y la guardamos en A2
+    MOVE.W EMEM(A3),D6      ; cogemos el contenido  EMemoria + M y la 
+                            ; y la guardamos en D6
     MOVE.W EIR, D5          ; movemos la inst. a D5, ya que hemos modificado D5
     JSR CogerI              ; sacamos el valor de I
     CMP #0, D5              ; comparamos I con 0              
     BNE I1_Load             ; si no son iguales significa que I es 1, por tanto,
                             ; saltamos al caso donde I es 1
-    MOVE.W D6,ET0         ; cuando I es 0, guardamos el contenido de Emem + M
+    MOVE.W D6,ET0           ; cuando I es 0, guardamos el contenido de Emem + M
                             ; en ET0
     MOVE.W SR, D2           ; movemos los flags a D2
     JMP FINAL_Load          ; saltamos al final del ELoad    
    
    I1_Load:
-    MOVE.W D6,ET1
+    MOVE.W D6,ET1           ;guardamos el contenido de Emem + M en ET1
     MOVE.W SR, D2           ; movemos los flags a D2
     
  FINAL_Load:
@@ -131,8 +131,8 @@ ELOA:                       ; Ti <-- [M]
 ESTO:                       ; M <-- [Ti]
     MOVE.W EIR, D5          ; metemos la instr. en D5
     JSR CogerM              ; sacamaos el valor de M
-    MULU.W #2, D5
-    MOVEA.L D5, A3          ; guardamos el valor de M en D6  
+    MULU.W #2, D5           ; mult. M por 2, ya que estamos trabajando en Words
+    MOVEA.L D5, A3          ; guardamos el valor de M en A3  
  
     MOVE.W EIR, D5          ; metemos la instr. en D5
     JSR CogerI
@@ -159,19 +159,19 @@ ELOIP:                      ; Ti <-- [[Xb]], Xb <-- [Xb] + 1
     CMP #0, D5              ; comparamos D5(I) con 0
     BNE I1_LOIP             ; si no son iguales saltamos donde I = 1
     
-    MOVE.W (A2),D6         ; T0 <-- [[Xb]]
-    MULU.W #2, D6
-    MOVEA.L D6, A3
-    MOVE.W EMEM(A3),ET0
+    MOVE.W (A2),D6           ; movemos la direccion efectiva de Emem a D6
+    MULU.W #2, D6            ; mult. por 2, ya que estamos trabajando en Words
+    MOVEA.L D6, A3           ; guardamos la direccion efectiva de Emem a A3
+    MOVE.W EMEM(A3),ET0      ; guardamos [[Xb]] en ET0
     MOVE.W SR, D2           ; guardamos los flags despues de la op.
     ADD.W #1, (A2)          ; Xb <-- [Xb] + 1   
     JMP FINAL_LOIP
     
    I1_LOIP:
-    MOVE.W (A2),D6         ; T0 <-- [[Xb]]
-    MULU.W #2, D6
-    MOVEA.L D6, A3
-    MOVE.W EMEM(A3),ET1
+    MOVE.W (A2),D6         ; movemos la direccion efectiva de Emem a D6
+    MULU.W #2, D6          ; mult. por 2, ya que estamos trabajando en Words
+    MOVEA.L D6, A3         ; guardamos la direccion efectiva de Emem a A3
+    MOVE.W EMEM(A3),ET1    ; guardamos [[Xb]] en ET1   
     MOVE.W SR, D2           ; guardamos los flags despues de la op.
     ADD.W #1, (A2)          ; Xb <-- [Xb] + 1   
     
@@ -192,18 +192,18 @@ ESTIP:                      ; [Xb] <-- [Ti], Xb <-- [Xb] + 1
     CMP #0, D5              ; comparamos D5(I) con 0
     BNE I1_STIP             ; si no son iguales saltamos donde I = 1
     
-    MOVE.W (A2),D6       ; [Xb] <-- [T0]
-    MULU.W #2, D6
-    MOVEA.L D6, A3
-    MOVE.W (ET0),EMEM(A3)
+    MOVE.W (A2),D6          ; Movemos la Xb a D6
+    MULU.W #2, D6           ; mult. por 2, ya que estamos trabajando en Words
+    MOVEA.L D6, A3          ; guardamos Xb en A3
+    MOVE.W (ET0),EMEM(A3)   ; [Xb] <-- [T0]
     ADD.W #1, (A2)          ; Xb <-- [Xb] + 1  
     JMP FINAL_STIP
     
    I1_STIP:
-    MOVE.W (A2),D6       ; [Xb] <-- [T0]
-    MULU.W #2, D6
-    MOVEA.L D6, A3
-    MOVE.W (ET0),EMEM(A3)
+    MOVE.W (A2),D6       ; Movemos la Xb a D6
+    MULU.W #2, D6           ; mult. por 2, ya que estamos trabajando en Words
+    MOVEA.L D6, A3          ; guardamos Xb en A3
+    MOVE.W (ET1),EMEM(A3)   ; [Xb] <-- [T1]
     ADD.W #1, (A2)          ; Xb <-- [Xb] + 1  
     
  FINAL_STIP:
